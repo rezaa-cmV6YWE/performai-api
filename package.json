@@ -1,0 +1,23 @@
+{
+  "name": "performai-api",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy --minify",
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
+    "check": "biome check --write .",
+    "lint": "biome check ."
+  },
+  "dependencies": {
+    "@hono/zod-validator": "^0.4.3",
+    "cheerio": "^1.0.0",
+    "hono": "^4.13.1",
+    "set-cookie-parser": "^2.7.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/set-cookie-parser": "^2.4.10",
+    "wrangler": "^4.110.0"
+  }
+}
