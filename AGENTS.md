@@ -4,10 +4,11 @@ Compact orientation for OpenCode sessions on `performai-api`.
 
 ## Stack & runtime
 
-- Cloudflare Worker built with **Hono + Zod + Cheerio**.
+- Cloudflare Worker built with **Hono + Zod + Cheerio**; also uses `set-cookie-parser` for cookie handling.
 - **Bun** is the package manager and runtime. Use `bun install`; do not add `package-lock.json`/`yarn.lock`/`pnpm-lock.yaml`.
 - TypeScript, `module: ESNext`, `moduleResolution: Bundler`, `strict: true`.
 - Import alias `@/*` maps to `./src/*`. Prefer `@/` imports over relative `../` paths.
+- JSX is configured in `tsconfig.json` (`jsx: react-jsx`, `jsxImportSource: hono/jsx`) for Hono JSX if needed.
 
 ## Daily commands
 
@@ -25,7 +26,7 @@ There is no `build`, `test`, or `typecheck` script. Wrangler bundles on `dev`/`d
 
 - Worker entry: `src/index.ts` → mounts `/v1` router from `@/routes/v1` and exposes `GET /ok` health check.
 - Wrangler `main`: `src/index.ts`, `compatibility_date: "2026-08-07"`.
-- v1 routes: `src/routes/v1/[server]/[game]/login.ts` and `profile.ts`.
+- v1 routes: `src/routes/v1/[server]/maimai/login.ts` and `maimai/profile.ts` (currently maimai-specific; no generic `[game]` route folder exists).
 
 ## API shape
 
@@ -46,14 +47,14 @@ There is no `build`, `test`, or `typecheck` script. Wrangler bundles on `dev`/`d
 
 ## Editing guidance
 
-- **Profile parser is fragile.** `src/lib/games/maimai/parser.ts` uses guessed CSS selectors (`.name_block`, `.rating_block`). If `name` or `rating` come back `null`, inspect the live maimai HTML and update the selectors.
+- **Profile parser is fragile.** `src/lib/games/maimai/parser.ts` uses guessed CSS selectors (`.name_block`, `.rating_block`). If parsing fails because `name` or `rating` elements are missing, inspect the live maimai HTML and update the selectors.
 - **Generated types:** `worker-configuration.d.ts` is committed but ignored by Biome. Regenerate with `bun run cf-typegen` after any Wrangler binding or env change.
 - **No bindings are configured** in `wrangler.jsonc` (all commented out). The app is fully stateless today; any new binding needs both `wrangler.jsonc` and `cf-typegen`.
 - **User-Agent string is hardcoded** in both `src/lib/games/maimai/auth.ts` and `src/lib/games/maimai/http.ts`. Keep them in sync if changed.
 
 ## Lint / format
 
-- Biome 1.9.4. Single quotes, 2-space indent, `lineWidth: 100`, `trailingCommas: "es5"`, `organizeImports` enabled.
+- Biome ^2.0.6. Single quotes, 2-space indent, `lineWidth: 100`, `trailingCommas: "es5"`, `organizeImports` enabled.
 - `noExplicitAny` is **off** in Biome.
 - Biome ignores `node_modules`, `dist`, `.wrangler`, and `worker-configuration.d.ts`.
 
