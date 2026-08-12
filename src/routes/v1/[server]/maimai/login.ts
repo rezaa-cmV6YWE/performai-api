@@ -1,35 +1,19 @@
+import { Hono } from 'hono';
+
 import { GameError } from '@/lib/errors';
 import { loginMaimaiIntl } from '@/lib/games/maimai/auth';
+import { loginBodySchema, serverSchema } from '@/lib/games/maimai/schemas';
 import { error, success } from '@/lib/response';
 import { validator } from '@/lib/validator';
-import { Hono } from 'hono';
-import { z } from 'zod';
-
-const paramsSchema = z.object({
-  server: z.enum(['intl', 'jp', 'cn']),
-  game: z.enum(['maimai', 'chunithm', 'ongeki']),
-});
-
-const bodySchema = z.object({
-  segaId: z.string().min(1),
-  password: z.string().min(1),
-});
 
 const app = new Hono();
 
-app.post('/', validator('param', paramsSchema), validator('json', bodySchema), async (c) => {
-  const { server, game } = c.req.valid('param');
+app.post('/', validator('param', serverSchema), validator('json', loginBodySchema), async (c) => {
+  const { server } = c.req.valid('param');
   const { segaId, password } = c.req.valid('json');
 
-  if (game !== 'maimai') {
-    return c.json(error('NOT_IMPLEMENTED', `game '${game}' not yet supported`), 501);
-  }
-
   if (server !== 'intl') {
-    return c.json(
-      error('NOT_IMPLEMENTED', `server '${server}' not yet supported for ${game}`),
-      501
-    );
+    return c.json(error('NOT_IMPLEMENTED', `server '${server}' not yet supported for maimai`), 501);
   }
 
   try {

@@ -1,12 +1,15 @@
 import { AuthError, GameError } from '@/lib/errors';
-import type { GameProfile } from '@/lib/games/base';
 import { MAIMAI_URLS, type MaimaiServer } from '@/lib/games/maimai/consts';
 import { maimaiFetch } from '@/lib/games/maimai/http';
 import { parseProfile } from '@/lib/games/maimai/parser';
+import type { MaimaiProfile } from '@/lib/games/maimai/schemas';
 
-export async function getMaimaiProfile(server: MaimaiServer, cookie: string): Promise<GameProfile> {
+export async function getMaimaiProfile(
+  server: MaimaiServer,
+  cookie: string
+): Promise<MaimaiProfile> {
   const baseUrl = MAIMAI_URLS[server];
-  const res = await maimaiFetch(`${baseUrl}/home/`, cookie);
+  const res = await maimaiFetch(`${baseUrl}/playerData/`, cookie);
 
   if (res.status === 401 || res.status === 403) {
     throw new AuthError('invalid or expired session cookie');
@@ -16,5 +19,5 @@ export async function getMaimaiProfile(server: MaimaiServer, cookie: string): Pr
   }
 
   const html = await res.text();
-  return parseProfile(html);
+  return parseProfile(html, server);
 }

@@ -1,16 +1,13 @@
 import { AuthError, GameError } from '@/lib/errors';
+import { MAIMAI_AUTH_GATEWAY_URL, MAIMAI_BACK_URL, MAIMAI_URLS } from '@/lib/games/maimai/consts';
 import { cookieBag, findCookie, mergeCookies } from '@/lib/games/maimai/cookies';
 
 const USER_AGENT =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
-const LOGIN_PAGE_URL =
-  'https://lng-tgk-aime-gw.am-all.net/common_auth/login' +
-  '?site_id=maimaidxex' +
-  '&redirect_url=https://maimaidx-eng.com/maimai-mobile/' +
-  '&back_url=https://maimai.sega.com/';
+const LOGIN_PAGE_URL = `${MAIMAI_AUTH_GATEWAY_URL}/login?site_id=maimaidxex&redirect_url=${encodeURIComponent(`${MAIMAI_URLS.intl}/`)}&back_url=${MAIMAI_BACK_URL}`;
 
-const LOGIN_POST_URL = 'https://lng-tgk-aime-gw.am-all.net/common_auth/login/sid';
+const LOGIN_POST_URL = `${MAIMAI_AUTH_GATEWAY_URL}/login/sid`;
 
 function isRedirect(status: number): boolean {
   return [301, 302, 303, 307, 308].includes(status);
@@ -90,7 +87,8 @@ export async function loginMaimaiIntl(segaId: string, password: string): Promise
     throw new AuthError('invalid credentials');
   }
 
-  if (!location.includes('maimaidx-eng.com')) {
+  const baseOrigin = new URL(MAIMAI_URLS.intl).origin;
+  if (!location.includes(baseOrigin)) {
     throw new GameError('unexpected login redirect', 'UNEXPECTED_REDIRECT', 500);
   }
 
