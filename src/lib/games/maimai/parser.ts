@@ -75,13 +75,13 @@ export function parseActiveCollection(html: string, server: MaimaiServer): strin
     throw new Error('collection page did not contain expected content');
   }
 
-  const nameplateElement = block.find('.w_396.m_r_10');
-  if (nameplateElement.length === 0) {
-    throw new Error('could not find nameplate image in nameplate data');
+  const activeCollectionElement = block.find('.w_396.m_r_10');
+  if (activeCollectionElement.length === 0) {
+    throw new Error('could not find active collection image in collections data');
   }
-  const nameplateSrc = nameplateElement.attr('src');
+  const activeCollectionSrc = activeCollectionElement.attr('src');
 
-  return resolveUrl(nameplateSrc, server);
+  return resolveUrl(activeCollectionSrc, server);
 }
 
 function resolveUrl(src: string | undefined, server: MaimaiServer): string | undefined {
