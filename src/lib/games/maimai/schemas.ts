@@ -35,3 +35,10 @@ export const MaimaiProfile = z.object({
 });
 
 export type MaimaiProfile = z.infer<typeof MaimaiProfile>;
+
+export const MaimaiProfileExtended = MaimaiProfile.extend({
+  nameplate: z.string().url().optional(),
+  frame: z.string().url().optional(),
+});
+
+export type MaimaiProfileExtended = z.infer<typeof MaimaiProfileExtended>;

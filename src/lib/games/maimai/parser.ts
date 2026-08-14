@@ -67,6 +67,23 @@ export function parseProfile(html: string, server: MaimaiServer): MaimaiProfile 
   };
 }
 
+export function parseActiveCollection(html: string, server: MaimaiServer): string | undefined {
+  const $ = load(html);
+  const block = $('.town_block.m_15.p_15.t_l');
+
+  if (block.length === 0) {
+    throw new Error('collection page did not contain expected content');
+  }
+
+  const nameplateElement = block.find('.w_396.m_r_10');
+  if (nameplateElement.length === 0) {
+    throw new Error('could not find nameplate image in nameplate data');
+  }
+  const nameplateSrc = nameplateElement.attr('src');
+
+  return resolveUrl(nameplateSrc, server);
+}
+
 function resolveUrl(src: string | undefined, server: MaimaiServer): string | undefined {
   if (!src) return undefined;
   const origin = new URL(MAIMAI_URLS[server]).origin;
