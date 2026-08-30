@@ -1,7 +1,7 @@
 import { parse, splitCookiesString } from 'set-cookie-parser';
 
-export function parseCookies(setCookieHeader: string | null) {
-  if (!setCookieHeader) return new Map<string, string>();
+export function parseCookies(setCookieHeader: string | null): Map<string, string> {
+  if (!setCookieHeader) return new Map();
   const parsed = parse(splitCookiesString(setCookieHeader));
   return new Map(parsed.map((c) => [c.name, c.value]));
 }

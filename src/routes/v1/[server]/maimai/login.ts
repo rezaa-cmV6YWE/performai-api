@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 
 import { GameError } from '@/lib/errors';
-import { loginMaimaiIntl } from '@/lib/games/maimai/auth';
+import { loginMaimaiIntl } from '@/lib/games/maimai';
 import { loginBodySchema, serverSchema } from '@/lib/games/maimai/schemas';
 import { error, success } from '@/lib/response';
 import { validator } from '@/lib/validator';
@@ -24,7 +24,8 @@ app.post('/', validator('param', serverSchema), validator('json', loginBodySchem
       c.status(err.statusCode as Parameters<typeof c.status>[0]);
       return c.json(error(err.code, err.message));
     }
-    return c.json(error('INTERNAL_ERROR', 'internal error'), 500);
+    const message = err instanceof Error ? err.message : 'internal error';
+    return c.json(error('INTERNAL_ERROR', message), 500);
   }
 });
 

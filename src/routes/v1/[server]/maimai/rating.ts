@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 
 import { GameError } from '@/lib/errors';
-import { getMaimaiProfile } from '@/lib/games/maimai';
+import { getMaimaiRating } from '@/lib/games/maimai';
 import { profileHeaderSchema, serverSchema } from '@/lib/games/maimai/schemas';
 import { error, success } from '@/lib/response';
 import { validator } from '@/lib/validator';
@@ -24,8 +24,8 @@ app.get(
     }
 
     try {
-      const profile = await getMaimaiProfile(server, cookie);
-      return c.json(success(profile));
+      const rating = await getMaimaiRating(server, cookie);
+      return c.json(success(rating));
     } catch (err) {
       if (err instanceof GameError) {
         c.status(err.statusCode as Parameters<typeof c.status>[0]);

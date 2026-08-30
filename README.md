@@ -89,11 +89,11 @@ Response:
 
 #### `GET /v1/:server/:game/profile`
 
-Fetch player profile. Requires the session cookie in the `x-game-cookie` header.
+Fetch player profile. Requires the session cookie in the `x-maimai-cookie` header.
 
 ```bash
 curl http://localhost:8787/v1/intl/maimai/profile \
-  -H "x-game-cookie: YOUR_COPIED_COOKIE_STRING"
+  -H "x-maimai-cookie: YOUR_COPIED_COOKIE_STRING"
 ```
 
 Response:

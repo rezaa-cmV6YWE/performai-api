@@ -17,7 +17,13 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.0.6",
+    "@types/bun": "^1.4.0",
     "@types/set-cookie-parser": "^2.4.10",
     "wrangler": "^4.110.0"
+  },
+  "module": "src/index.ts",
+  "private": true,
+  "peerDependencies": {
+    "typescript": "^5"
   }
 }
