@@ -23,7 +23,7 @@ Compact orientation for OpenCode sessions on `performai-api`.
 
 ## Entrypoints
 
-- Worker entry: `src/index.ts` → mounts `/v1` router from `@/routes/v1` and exposes `GET /ok` health check.
+- Worker entry: `src/index.ts` → mounts `/v1` router from `@/routes/v1`, exposes `GET /ok` health check, serves OpenAPI specification at `/openapi.json` and `/doc`, and renders interactive Scalar API reference at `/scalar` and `/docs`.
 - Wrangler `main`: `src/index.ts`, `compatibility_date: "2026-08-07"`.
 - v1 routes: `src/routes/v1/[server]/maimai/login.ts`, `profile.ts`, and `rating.ts`.
 

@@ -10,10 +10,11 @@
   },
   "dependencies": {
     "@hono/zod-validator": "^0.4.3",
+    "@scalar/hono-api-reference": "^0.12.0",
     "cheerio": "^1.0.0",
     "hono": "^4.13.1",
     "set-cookie-parser": "^2.7.0",
-    "zod": "^3.25.0"
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.0.6",

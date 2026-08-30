@@ -29,6 +29,11 @@ bun run lint    # biome check
 bun run deploy
 ```
 
+## API Documentation
+
+- **Interactive API Reference (Scalar):** `http://localhost:8787/scalar` or `http://localhost:8787/docs`
+- **OpenAPI 3.1.0 JSON Spec:** `http://localhost:8787/openapi.json` or `http://localhost:8787/doc`
+
 ## API
 
 Base URL: `/v1/:server/:game`
