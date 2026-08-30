@@ -1,4 +1,7 @@
-# performai-api
+# Performai API
+![kaleidxscope](./assets/kaleidx-scope.jpeg)
+
+---
 
 Scraper and rating calculation API for SEGA arcade rhythm games (maimai, CHUNITHM, O.N.G.E.K.I). Built for Cloudflare Workers with Hono.
 
