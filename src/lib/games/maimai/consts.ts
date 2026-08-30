@@ -99,8 +99,8 @@ export const FS_ICON_FILES: Record<string, string | undefined> = {
   none: undefined,
   fs: 'fs',
   'fs+': 'fsp',
-  fdx: 'fdx',
-  'fdx+': 'fdxp',
+  fdx: 'fsd',
+  'fdx+': 'fsdp',
   sync: 'sync',
 };
 
