@@ -10,14 +10,21 @@
   },
   "dependencies": {
     "@hono/zod-validator": "^0.4.3",
+    "@scalar/hono-api-reference": "^0.12.0",
     "cheerio": "^1.0.0",
     "hono": "^4.13.1",
     "set-cookie-parser": "^2.7.0",
-    "zod": "^3.25.0"
+    "zod": "^4.5.4"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
+    "@biomejs/biome": "^2.0.6",
+    "@types/bun": "^1.4.0",
     "@types/set-cookie-parser": "^2.4.10",
     "wrangler": "^4.110.0"
+  },
+  "module": "src/index.ts",
+  "private": true,
+  "peerDependencies": {
+    "typescript": "^5"
   }
 }

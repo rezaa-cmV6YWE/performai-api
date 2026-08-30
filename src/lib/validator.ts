@@ -1,7 +1,8 @@
-import { error } from '@/lib/response';
 import { zValidator } from '@hono/zod-validator';
 import type { ValidationTargets } from 'hono';
 import type { z } from 'zod';
+
+import { error } from '@/lib/response';
 
 export function validator<T extends z.ZodTypeAny>(target: keyof ValidationTargets, schema: T) {
   return zValidator(target, schema, (result, c) => {
