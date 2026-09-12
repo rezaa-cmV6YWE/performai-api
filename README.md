@@ -1,4 +1,5 @@
 # Performai API
+
 ![kaleidxscope](./assets/kaleidx-scope.jpeg)
 
 ---
@@ -67,13 +68,13 @@ bun run deploy
 
 Base path: `/v1/:server/:game`
 
-| Server | Game | Status | Notes |
-| :--- | :--- | :--- | :--- |
-| `intl` | `maimai` | Supported | Full login, profile, and rating / Best 50 support |
-| `jp` | `maimai` | Planned | Returns `501 NOT_IMPLEMENTED` |
-| `cn` | `maimai` | Planned | Returns `501 NOT_IMPLEMENTED` |
-| `intl` | `chunithm` | Planned | Returns `501 NOT_IMPLEMENTED` |
-| `intl` | `ongeki` | Planned | Returns `501 NOT_IMPLEMENTED` |
+| Server | Game       | Status    | Notes                                             |
+| :----- | :--------- | :-------- | :------------------------------------------------ |
+| `intl` | `maimai`   | Supported | Full login, profile, and rating / Best 50 support |
+| `jp`   | `maimai`   | Planned   | Returns `501 NOT_IMPLEMENTED`                     |
+| `cn`   | `maimai`   | Planned   | Returns `501 NOT_IMPLEMENTED`                     |
+| `intl` | `chunithm` | Planned   | Returns `501 NOT_IMPLEMENTED`                     |
+| `intl` | `ongeki`   | Planned   | Returns `501 NOT_IMPLEMENTED`                     |
 
 ---
 

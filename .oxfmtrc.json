@@ -1,0 +1,29 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 100,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": true,
+  "singleQuote": true,
+  "trailingComma": "es5",
+  "sortImports": {
+    "groups": [
+      "builtin",
+      "external",
+      ["internal", "subpath"],
+      ["parent", "sibling", "index"],
+      "style",
+      "unknown"
+    ],
+    "internalPattern": ["@/"],
+    "newlinesBetween": true,
+    "order": "asc",
+    "ignoreCase": true
+  },
+  "ignorePatterns": [
+    "**/worker-configuration.d.ts",
+    "**/dist/**",
+    "***/.agents/**",
+    "**/node_modules/**"
+  ]
+}

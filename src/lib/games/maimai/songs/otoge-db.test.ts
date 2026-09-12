@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'bun:test';
+
 import { VERSION_MAJOR_MAP } from '@/lib/games/maimai/consts';
 import {
   detectCurrentVersion,
@@ -7,8 +9,6 @@ import {
   type OtogeDbSongs,
   versionCodeToId,
 } from '@/lib/games/maimai/songs/otoge-db';
-
-import { describe, expect, it } from 'bun:test';
 
 // ---------------------------------------------------------------------------
 // VERSION_MAJOR_MAP invariants

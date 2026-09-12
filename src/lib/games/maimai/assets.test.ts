@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'bun:test';
+
 import {
   getFcImageUrl,
   getFsImageUrl,
@@ -5,8 +7,6 @@ import {
   getJacketUrl,
   getRatingBadgeUrl,
 } from '@/lib/games/maimai/assets';
-
-import { describe, expect, it } from 'bun:test';
 
 // ---------------------------------------------------------------------------
 // getJacketUrl
