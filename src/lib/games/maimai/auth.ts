@@ -5,7 +5,7 @@ import {
   MAIMAI_BACK_URL,
   MAIMAI_URLS,
 } from '@/lib/games/maimai/consts';
-import { cookieBag, findCookie, mergeCookies } from '@/lib/games/maimai/cookies';
+import { cookieBag, findCookie, mergeCookies, parseCookies } from '@/lib/games/maimai/cookies';
 import { followRedirects } from '@/lib/games/maimai/http';
 
 const LOGIN_PAGE_URL = `${MAIMAI_AUTH_GATEWAY_URL}/login?site_id=maimaidxex&redirect_url=${encodeURIComponent(`${MAIMAI_URLS.intl}/`)}&back_url=${MAIMAI_BACK_URL}`;
@@ -55,5 +55,14 @@ export async function loginMaimaiIntl(segaId: string, password: string): Promise
   const initialCookie = mergeCookies(preCookies, loginRes.headers.getSetCookie());
   const final = await followRedirects(location, initialCookie);
 
-  return final.cookie;
+  // Filter out AM-ALL gateway cookies (clal, JSESSIONID) to prevent them from
+  // being sent in scraping requests to maimaidx-eng.com, which can cause WAF rejections.
+  const allowed = new Set(['_t', 'userId', 'AWSALBTG', 'AWSALBTGCORS']);
+  const finalMap = parseCookies(final.cookie);
+  const filtered = Array.from(finalMap.entries())
+    .filter(([k]) => allowed.has(k))
+    .map(([k, v]) => `${k}=${v}`)
+    .join('; ');
+
+  return filtered;
 }

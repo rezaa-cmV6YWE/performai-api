@@ -49,6 +49,7 @@ export async function followRedirects(
     });
 
     if (!isRedirect(res.status)) {
+      currentCookie = mergeCookies(currentCookie, res.headers.getSetCookie());
       return { url: currentUrl, cookie: currentCookie, response: res };
     }
 
@@ -58,6 +59,7 @@ export async function followRedirects(
 
     const location = res.headers.get('location');
     if (!location) {
+      currentCookie = mergeCookies(currentCookie, res.headers.getSetCookie());
       return { url: currentUrl, cookie: currentCookie, response: res };
     }
 
