@@ -20,10 +20,5 @@
     "order": "asc",
     "ignoreCase": true
   },
-  "ignorePatterns": [
-    "**/worker-configuration.d.ts",
-    "**/dist/**",
-    "***/.agents/**",
-    "**/node_modules/**"
-  ]
+  "ignorePatterns": ["**/dist/**", "***/.agents/**", "**/node_modules/**"]
 }

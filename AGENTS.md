@@ -4,31 +4,28 @@ Compact orientation for coding sessions on `performai-api`.
 
 ## Stack & runtime
 
-- Cloudflare Worker built with **Elysia + Zod + Cheerio**; uses `@elysiajs/openapi` for docs (Scalar UI) and `set-cookie-parser` for cookie handling.
+- Standalone **Bun** backend built with **Elysia + Zod + Cheerio**; uses `@elysiajs/openapi` for docs (Scalar UI) and custom cookie handling.
 - **Bun** is the package manager, runtime, and test runner. Use `bun install`; do not add `package-lock.json`/`yarn.lock`/`pnpm-lock.yaml`.
 - TypeScript, `module: ESNext`, `moduleResolution: Bundler`, `strict: true`.
 - Import alias `@/*` maps to `./src/*`. Prefer `@/` imports over relative `../` paths.
-- Elysia on CF Workers requires `CloudflareAdapter` and `.compile()` at the end of the chain.
 
 ## Daily commands
 
-| Command            | What it does                                                               |
-| ------------------ | -------------------------------------------------------------------------- |
-| `bun dev`          | `wrangler dev` on `http://localhost:8787`.                                 |
-| `bun deploy`       | `wrangler deploy --minify` to production.                                  |
-| `bun lint`         | `oxlint .` — lint check.                                                   |
-| `bun lint:fix`     | `oxlint --fix .` — lint with auto-fix.                                     |
-| `bun format`       | `oxfmt .` — format files.                                                  |
-| `bun format:check` | `oxfmt --check .` — check formatting.                                      |
-| `bun check`        | `oxlint . && oxfmt --check .` — lint and format check.                     |
-| `bun check:fix`    | `oxlint --fix . && oxfmt .` — auto-fix lint and format.                    |
-| `bun test`         | Run unit tests with Bun test runner.                                       |
-| `bun cf-typegen`   | Regenerate `worker-configuration.d.ts` after Wrangler binding/env changes. |
+| Command            | What it does                                               |
+| ------------------ | ---------------------------------------------------------- |
+| `bun start`        | `bun run src/index.ts` — start server in production.       |
+| `bun dev`          | `bun run --watch src/index.ts` on `http://localhost:3000`. |
+| `bun lint`         | `oxlint .` — lint check.                                   |
+| `bun lint:fix`     | `oxlint --fix .` — lint with auto-fix.                     |
+| `bun format`       | `oxfmt .` — format files.                                  |
+| `bun format:check` | `oxfmt --check .` — check formatting.                      |
+| `bun check`        | `oxlint . && oxfmt --check .` — lint and format check.     |
+| `bun check:fix`    | `oxlint --fix . && oxfmt .` — auto-fix lint and format.    |
+| `bun test`         | Run unit tests with Bun test runner.                       |
 
 ## Entrypoints
 
-- Worker entry: `src/index.ts` → Elysia app with `CloudflareAdapter`, mounts maimai module at `/v1/:server/maimai`, exposes `GET /ok` health check, serves OpenAPI spec and Scalar docs.
-- Wrangler `main`: `src/index.ts`, `compatibility_date: "2026-08-07"`.
+- App entry: `src/index.ts` → Elysia app mounts maimai module at `/v1/:server/maimai`, exposes `GET /ok` health check, serves OpenAPI spec and Scalar docs. Runs on port 3000 locally.
 - Maimai module: `src/modules/maimai/index.ts` (controller), `src/modules/maimai/service.ts` (service), `src/modules/maimai/model.ts` (validation schemas).
 
 ## API shape & Implemented features
@@ -65,9 +62,7 @@ Compact orientation for coding sessions on `performai-api`.
 ## Editing guidance
 
 - **Elysia key concepts**: Method chaining required for types, plugins isolated by default (use `as: 'global'` to export), named plugins for deduplication, order matters.
-- **CF Worker limitations**: Cannot use inline values (`.get('/', 'hello')`), no `Elysia.file`, no OpenAPI Type Gen (`fromTypes`).
 - **Profile/Score parsers**: Uses Cheerio CSS selectors. Adjust selectors in parser files if maimai updates its DOM.
-- **Generated types**: `worker-configuration.d.ts` is committed but ignored by oxlint. Regenerate with `bun run cf-typegen`.
 - **User-Agent & Constants**: Centralized in `src/lib/games/maimai/consts.ts`.
 
 ## Lint / format
@@ -77,7 +72,7 @@ Compact orientation for coding sessions on `performai-api`.
 - **Oxfmt** ^0.67.0 for formatting. Config in `.oxfmtrc.json`: single quotes, 2-space indent, `printWidth: 100`, `trailingComma: "es5"`.
   - Built-in `sortImports` enabled with grouping (`builtin` -> `external` -> `internal (@/)` -> `parent/sibling/index`).
 - **Husky** ^9.1.7 + **lint-staged** ^17.5.1: pre-commit hook runs `oxlint --fix` and `oxfmt` on staged files. Config in `.lintstagedrc.json`.
-- Oxlint and oxfmt ignore `node_modules`, `dist`, `.wrangler`, and `worker-configuration.d.ts`.
+- Oxlint and oxfmt ignore `node_modules` and `dist`.
 
 ## Operational notes
 

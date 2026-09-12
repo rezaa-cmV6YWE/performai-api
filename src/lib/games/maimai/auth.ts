@@ -94,7 +94,6 @@ export async function refreshSession(clalCookie: string): Promise<string> {
     throw new AuthError('invalid or expired clal token');
   }
 
-  // Follow the redirect to maimaidx-eng.com to get fresh IP-bound session cookies
   const final = await followRedirects(location, '');
 
   const allowed = new Set(['_t', 'userId', 'AWSALBTG', 'AWSALBTGCORS']);

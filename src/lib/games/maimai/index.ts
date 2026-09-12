@@ -24,15 +24,18 @@ export async function getMaimaiProfile(
   cookie: string
 ): Promise<MaimaiProfileExtended> {
   let sessionCookie = cookie;
-  if (parseCookies(cookie).has('clal')) {
+  const parsed = parseCookies(cookie);
+  if (!parsed.has('_t') && parsed.has('clal')) {
     sessionCookie = await refreshSession(cookie);
   }
 
   const baseUrl = MAIMAI_URLS[server];
 
-  const profileRes = await maimaiFetch(`${baseUrl}/playerData/`, sessionCookie);
-  const nameplateRes = await maimaiFetch(`${baseUrl}/collection/nameplate/`, sessionCookie);
-  const frameRes = await maimaiFetch(`${baseUrl}/collection/frame/`, sessionCookie);
+  const [profileRes, nameplateRes, frameRes] = await Promise.all([
+    maimaiFetch(`${baseUrl}/playerData/`, sessionCookie),
+    maimaiFetch(`${baseUrl}/collection/nameplate/`, sessionCookie),
+    maimaiFetch(`${baseUrl}/collection/frame/`, sessionCookie),
+  ]);
 
   const isAuthError = [profileRes, nameplateRes, frameRes].some(
     (res) => res.status === 401 || res.status === 403
@@ -52,9 +55,11 @@ export async function getMaimaiProfile(
     throw new FetchError(`maimai returned ${failedStatus}`, failedStatus);
   }
 
-  const profileHtml = await profileRes.text();
-  const nameplateHtml = await nameplateRes.text();
-  const frameHtml = await frameRes.text();
+  const [profileHtml, nameplateHtml, frameHtml] = await Promise.all([
+    profileRes.text(),
+    nameplateRes.text(),
+    frameRes.text(),
+  ]);
 
   const parsedProfile = parseProfile(profileHtml, server);
   const parsedNameplate = parseActiveCollection(nameplateHtml, server);
@@ -104,7 +109,8 @@ export async function getMaimaiRating(
   cookie: string
 ): Promise<MaimaiRating> {
   let sessionCookie = cookie;
-  if (parseCookies(cookie).has('clal')) {
+  const parsed = parseCookies(cookie);
+  if (!parsed.has('_t') && parsed.has('clal')) {
     sessionCookie = await refreshSession(cookie);
   }
 

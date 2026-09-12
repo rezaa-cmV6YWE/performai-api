@@ -4,9 +4,8 @@
   "type": "module",
   "module": "src/index.ts",
   "scripts": {
-    "dev": "wrangler dev",
-    "deploy": "wrangler deploy --minify",
-    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
+    "start": "bun run src/index.ts",
+    "dev": "bun run --watch src/index.ts",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "format": "oxfmt .",
@@ -27,8 +26,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^17.5.1",
     "oxfmt": "^0.67.0",
-    "oxlint": "latest",
-    "wrangler": "^4.110.0"
+    "oxlint": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"

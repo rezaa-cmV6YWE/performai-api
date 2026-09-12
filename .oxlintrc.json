@@ -24,11 +24,5 @@
     "import/newline-after-import": "warn",
     "import/no-duplicates": "warn"
   },
-  "ignorePatterns": [
-    "**/node_modules/**",
-    "**/dist/**",
-    "**/.wrangler/**",
-    "**/worker-configuration.d.ts",
-    "**/.agents/**"
-  ]
+  "ignorePatterns": ["**/node_modules/**", "**/dist/**", "**/.agents/**"]
 }
