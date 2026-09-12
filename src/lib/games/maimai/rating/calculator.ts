@@ -42,7 +42,7 @@ export function calculateSongRating(
 }
 
 export function computeRatingSongs(ratedScores: RatedScore[], currentVersion: number) {
-  const sorted = [...ratedScores].sort((a, b) => {
+  const sorted = ratedScores.toSorted((a, b) => {
     if (b.rating !== a.rating) return b.rating - a.rating;
     return b.achievement - a.achievement;
   });

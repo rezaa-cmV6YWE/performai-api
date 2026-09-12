@@ -1,11 +1,11 @@
+import { describe, expect, it } from 'bun:test';
+
 import {
   calculateSongRating,
   computeRatingSongs,
   getRatingFactor,
   type RatedScore,
 } from '@/lib/games/maimai/rating/calculator';
-
-import { describe, expect, it } from 'bun:test';
 
 // ---------------------------------------------------------------------------
 // getRatingFactor

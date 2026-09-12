@@ -1,9 +1,10 @@
 # Performai API
+
 ![kaleidxscope](./assets/kaleidx-scope.jpeg)
 
 ---
 
-Scraper and rating calculation API for SEGA arcade rhythm games (maimai, CHUNITHM, O.N.G.E.K.I). Built for Cloudflare Workers with Hono.
+Scraper and rating calculation API for SEGA arcade rhythm games (maimai, CHUNITHM, O.N.G.E.K.I). Built for Cloudflare Workers with **Elysia + Zod + Cheerio**.
 
 Currently supports **maimai International (`intl`)** with full authentication, profile scraping, score parsing, and Best 50 / DX Rating calculation. JP and CN servers and other rhythm games are planned.
 
@@ -41,9 +42,15 @@ bun test
 
 ### Lint & Format
 
+Configured with **Oxlint** and **Oxfmt** (with Husky + lint-staged on pre-commit):
+
 ```bash
-bun run check   # biome check --write (lint and format with auto-fix)
-bun run lint    # biome check (read-only check)
+bun run check        # oxlint . && oxfmt --check . (lint and format check)
+bun run check:fix    # oxlint --fix . && oxfmt . (auto-fix lint and format)
+bun run lint         # oxlint .
+bun run lint:fix     # oxlint --fix .
+bun run format       # oxfmt .
+bun run format:check # oxfmt --check .
 ```
 
 ### Deployment
@@ -58,8 +65,8 @@ bun run deploy
 
 ## API Documentation
 
-- **Interactive API Reference (Scalar):** `http://localhost:8787/scalar`, `http://localhost:8787/docs`, or `http://localhost:8787/reference`
-- **OpenAPI 3.1.0 Spec:** `http://localhost:8787/openapi.yaml` (redirects at `/openapi.json` and `/doc`)
+- **Interactive API Reference (Scalar):** `http://localhost:8787/docs`
+- **OpenAPI Specification (JSON):** `http://localhost:8787/docs/json`
 
 ---
 
@@ -67,13 +74,13 @@ bun run deploy
 
 Base path: `/v1/:server/:game`
 
-| Server | Game | Status | Notes |
-| :--- | :--- | :--- | :--- |
-| `intl` | `maimai` | Supported | Full login, profile, and rating / Best 50 support |
-| `jp` | `maimai` | Planned | Returns `501 NOT_IMPLEMENTED` |
-| `cn` | `maimai` | Planned | Returns `501 NOT_IMPLEMENTED` |
-| `intl` | `chunithm` | Planned | Returns `501 NOT_IMPLEMENTED` |
-| `intl` | `ongeki` | Planned | Returns `501 NOT_IMPLEMENTED` |
+| Server | Game       | Status    | Notes                                             |
+| :----- | :--------- | :-------- | :------------------------------------------------ |
+| `intl` | `maimai`   | Supported | Full login, profile, and rating / Best 50 support |
+| `jp`   | `maimai`   | Planned   | Returns `501 NOT_IMPLEMENTED`                     |
+| `cn`   | `maimai`   | Planned   | Returns `501 NOT_IMPLEMENTED`                     |
+| `intl` | `chunithm` | Planned   | Returns `501 NOT_IMPLEMENTED`                     |
+| `intl` | `ongeki`   | Planned   | Returns `501 NOT_IMPLEMENTED`                     |
 
 ---
 
@@ -81,38 +88,35 @@ Base path: `/v1/:server/:game`
 
 ```
 src/
-├── index.ts                           # Cloudflare Worker entry, docs & health routes
-├── openapi.yaml                       # OpenAPI 3.1.0 specification
+├── index.ts                           # Cloudflare Worker entry, Elysia app & routes
 ├── env.d.ts                           # Worker environment definitions
-├── lib/
-│   ├── errors.ts                      # GameError, AuthError, FetchError, ParseError
-│   ├── response.ts                    # success / error JSON envelope helpers
-│   ├── validator.ts                   # Zod request validator middleware
-│   └── games/
-│       └── maimai/
-│           ├── index.ts               # getMaimaiProfile, getMaimaiRating entrypoints
-│           ├── assets.ts              # Jacket, FC/FS icon, rating plate URL helpers
-│           ├── auth.ts                # SEGA ID redirect dance & authentication
-│           ├── consts.ts              # URLs, difficulty constants, version tables
-│           ├── cookies.ts             # Cookie extraction and formatting helpers
-│           ├── http.ts                # Custom fetch wrapper handling redirects & cookies
-│           ├── schemas.ts             # Zod schemas & TypeScript types
-│           ├── parser/
-│           │   ├── name.ts            # Unicode normalization & URL basename utilities
-│           │   ├── profile.ts         # Profile & collection (nameplate/frame) HTML parsers
-│           │   └── scores.ts          # Score card scraping across all difficulties
-│           ├── rating/
-│           │   └── calculator.ts      # Rating formulas, bracket factors & B50 ranking
-│           └── songs/
-│               └── otoge-db.ts        # OtogeDB data fetching, versions & chart lookup
-└── routes/
-    └── v1/
-        ├── index.ts                   # v1 router root
-        └── [server]/
-            └── maimai/
-                ├── login.ts           # POST /v1/:server/maimai/login
-                ├── profile.ts         # GET /v1/:server/maimai/profile
-                └── rating.ts          # GET /v1/:server/maimai/rating
+├── modules/
+│   └── maimai/
+│       ├── index.ts                   # Maimai module controller (/v1/:server/maimai)
+│       ├── model.ts                   # Validation schemas (params, body, headers)
+│       └── service.ts                 # Service layer for login, profile, rating
+├── plugins/
+│   ├── error-handler.ts               # Global onError handler (GameError & validation errors)
+│   └── openapi.ts                     # @elysiajs/openapi plugin configuration (Scalar at /docs)
+└── lib/
+    ├── errors.ts                      # GameError, AuthError, FetchError, ParseError
+    └── games/
+        └── maimai/
+            ├── index.ts               # getMaimaiProfile, getMaimaiRating entrypoints
+            ├── assets.ts              # Jacket, FC/FS icon, rating plate URL helpers
+            ├── auth.ts                # SEGA ID redirect dance & authentication
+            ├── consts.ts              # URLs, difficulty constants, version tables
+            ├── cookies.ts             # Cookie extraction and formatting helpers
+            ├── http.ts                # Custom fetch wrapper handling redirects & cookies
+            ├── schemas.ts             # Zod schemas & TypeScript types
+            ├── parser/
+            │   ├── name.ts            # Unicode normalization & URL basename utilities
+            │   ├── profile.ts         # Profile & collection (nameplate/frame) HTML parsers
+            │   └── scores.ts          # Score card scraping across all difficulties
+            ├── rating/
+            │   └── calculator.ts      # Rating formulas, bracket factors & B50 ranking
+            └── songs/
+                └── otoge-db.ts        # OtogeDB data fetching, versions & chart lookup
 ```
 
 ---

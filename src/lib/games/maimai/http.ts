@@ -37,17 +37,19 @@ export async function followRedirects(
   let currentInit: RequestInit = { ...restInit, headers: customHeaders };
 
   while (true) {
+    // oxlint-disable-next-line no-await-in-loop
     const res = await fetch(currentUrl, {
       ...currentInit,
       headers: {
         ...DEFAULT_HEADERS,
-        Cookie: currentCookie,
+        ...(currentCookie ? { Cookie: currentCookie } : {}),
         ...currentInit.headers,
       },
       redirect: 'manual',
     });
 
     if (!isRedirect(res.status)) {
+      currentCookie = mergeCookies(currentCookie, res.headers.getSetCookie());
       return { url: currentUrl, cookie: currentCookie, response: res };
     }
 
@@ -57,6 +59,7 @@ export async function followRedirects(
 
     const location = res.headers.get('location');
     if (!location) {
+      currentCookie = mergeCookies(currentCookie, res.headers.getSetCookie());
       return { url: currentUrl, cookie: currentCookie, response: res };
     }
 
@@ -67,7 +70,7 @@ export async function followRedirects(
       throw new AuthError('session expired or invalid');
     }
 
-    currentCookie = mergeCookies(currentCookie, res.headers.get('set-cookie'));
+    currentCookie = mergeCookies(currentCookie, res.headers.getSetCookie());
     currentUrl = new URL(location, currentUrl).toString();
     redirects++;
 
@@ -87,8 +90,6 @@ export async function maimaiFetch(
     checkAuthRedirect: true,
     headers: {
       Referer: REFERER,
-      Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-      'Accept-Language': 'en-US,en;q=0.9',
       ...init.headers,
     },
   });

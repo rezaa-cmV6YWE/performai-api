@@ -3,8 +3,8 @@ import { load } from 'cheerio';
 import { AuthError, FetchError } from '@/lib/errors';
 import {
   DIFFICULTIES,
-  DIFFICULTY_SELECTORS,
   type Difficulty,
+  DIFFICULTY_SELECTORS,
   MAIMAI_URLS,
 } from '@/lib/games/maimai/consts';
 import { maimaiFetch } from '@/lib/games/maimai/http';
@@ -125,7 +125,7 @@ export function parseScoreData(html: string, difficultyNumber: number): ScoreDat
     let fc: string | null = null;
     let fs: string | null = null;
 
-    block.find('img').each((_, imgEl) => {
+    block.find('img').each((_i, imgEl) => {
       const src = $(imgEl).attr('src');
       if (!src) return;
 
@@ -168,7 +168,7 @@ export async function fetchScoreData(
   const res = await maimaiFetch(url, cookie);
 
   if (res.status === 401 || res.status === 403) {
-    throw new AuthError('session expired or invalid');
+    throw new AuthError(`session expired or invalid (HTTP ${res.status})`);
   }
 
   if (!res.ok) {
@@ -183,6 +183,5 @@ export async function fetchAllScoreData(cookie: string): Promise<ScoreData[]> {
   const results = await Promise.all(
     [0, 1, 2, 3, 4].map((difficulty) => fetchScoreData(cookie, difficulty))
   );
-
   return results.flat();
 }

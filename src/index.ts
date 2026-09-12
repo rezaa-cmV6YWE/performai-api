@@ -1,32 +1,18 @@
-import { Scalar } from '@scalar/hono-api-reference';
-import { Hono } from 'hono';
+import { Elysia } from 'elysia';
 
-import { success } from '@/lib/response';
-import openapiYaml from '@/openapi.yaml' with { type: 'text' };
-import { v1 } from '@/routes/v1';
+import { maimaiModule } from '@/modules/maimai';
+import { errorHandler } from '@/plugins/error-handler';
+import { openapiPlugin } from '@/plugins/openapi';
 
-const app = new Hono();
+const port = Number(process.env.PORT) || 3000;
 
-app.get('/ok', (c) => c.json(success({ ok: true })));
-app.route('/v1', v1);
+export const app = new Elysia()
+  .use(errorHandler)
+  .use(openapiPlugin)
+  .get('/ok', () => ({ data: { ok: true } }))
+  .use(maimaiModule)
+  .listen(port);
 
-app.get('/openapi.yaml', (c) => {
-  return c.text(openapiYaml, 200, {
-    'Content-Type': 'text/yaml; charset=utf-8',
-  });
-});
-app.get('/openapi.json', (c) => c.redirect('/openapi.yaml'));
-app.get('/doc', (c) => c.redirect('/openapi.yaml'));
-
-const scalarDocs = Scalar({
-  pageTitle: 'performai API Documentation',
-  spec: {
-    content: openapiYaml,
-  },
-});
-
-app.get('/scalar', scalarDocs);
-app.get('/docs', scalarDocs);
-app.get('/reference', scalarDocs);
+console.log(`🦊 Elysia is running at http://${app.server?.hostname}:${app.server?.port}`);
 
 export default app;

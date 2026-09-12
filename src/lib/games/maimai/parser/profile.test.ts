@@ -1,7 +1,7 @@
+import { describe, expect, it } from 'bun:test';
+
 import { ParseError } from '@/lib/errors';
 import { parseActiveCollection, parseProfile } from '@/lib/games/maimai/parser/profile';
-
-import { describe, expect, it } from 'bun:test';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -57,8 +57,7 @@ describe('parseProfile — happy path', () => {
   });
 });
 
-describe('parseProfile — title type variants', () => {
-  const makeHtml = (trophyClass: string) => `
+const makeTitleVariantHtml = (trophyClass: string) => `
     <div class="see_through_block">
       <div class="name_block">P</div>
       <div class="rating_block">0</div>
@@ -68,24 +67,25 @@ describe('parseProfile — title type variants', () => {
     </div>
   `;
 
+describe('parseProfile — title type variants', () => {
   it('parses gold title', () => {
-    expect(parseProfile(makeHtml('trophy_Gold'), 'intl').title.type).toBe('gold');
+    expect(parseProfile(makeTitleVariantHtml('trophy_Gold'), 'intl').title.type).toBe('gold');
   });
 
   it('parses silver title', () => {
-    expect(parseProfile(makeHtml('trophy_Silver'), 'intl').title.type).toBe('silver');
+    expect(parseProfile(makeTitleVariantHtml('trophy_Silver'), 'intl').title.type).toBe('silver');
   });
 
   it('parses bronze title', () => {
-    expect(parseProfile(makeHtml('trophy_Bronze'), 'intl').title.type).toBe('bronze');
+    expect(parseProfile(makeTitleVariantHtml('trophy_Bronze'), 'intl').title.type).toBe('bronze');
   });
 
   it('parses normal title', () => {
-    expect(parseProfile(makeHtml('trophy_Normal'), 'intl').title.type).toBe('normal');
+    expect(parseProfile(makeTitleVariantHtml('trophy_Normal'), 'intl').title.type).toBe('normal');
   });
 
   it('returns null type for unrecognized trophy class', () => {
-    expect(parseProfile(makeHtml('trophy_Unknown'), 'intl').title.type).toBeNull();
+    expect(parseProfile(makeTitleVariantHtml('trophy_Unknown'), 'intl').title.type).toBeNull();
   });
 });
 
