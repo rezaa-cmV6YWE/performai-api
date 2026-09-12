@@ -5,7 +5,9 @@ import {
   getJacketUrl,
   getRatingBadgeUrl,
 } from '@/lib/games/maimai/assets';
+import { refreshSession } from '@/lib/games/maimai/auth';
 import { MAIMAI_URLS, type MaimaiServer } from '@/lib/games/maimai/consts';
+import { parseCookies } from '@/lib/games/maimai/cookies';
 import { maimaiFetch } from '@/lib/games/maimai/http';
 import { parseActiveCollection, parseProfile } from '@/lib/games/maimai/parser/profile';
 import { fetchAllScoreData, type ScoreData } from '@/lib/games/maimai/parser/scores';
@@ -21,11 +23,16 @@ export async function getMaimaiProfile(
   server: MaimaiServer,
   cookie: string
 ): Promise<MaimaiProfileExtended> {
+  let sessionCookie = cookie;
+  if (parseCookies(cookie).has('clal')) {
+    sessionCookie = await refreshSession(cookie);
+  }
+
   const baseUrl = MAIMAI_URLS[server];
 
-  const profileRes = await maimaiFetch(`${baseUrl}/playerData/`, cookie);
-  const nameplateRes = await maimaiFetch(`${baseUrl}/collection/nameplate/`, cookie);
-  const frameRes = await maimaiFetch(`${baseUrl}/collection/frame/`, cookie);
+  const profileRes = await maimaiFetch(`${baseUrl}/playerData/`, sessionCookie);
+  const nameplateRes = await maimaiFetch(`${baseUrl}/collection/nameplate/`, sessionCookie);
+  const frameRes = await maimaiFetch(`${baseUrl}/collection/frame/`, sessionCookie);
 
   const isAuthError = [profileRes, nameplateRes, frameRes].some(
     (res) => res.status === 401 || res.status === 403
@@ -96,7 +103,15 @@ export async function getMaimaiRating(
   _server: MaimaiServer,
   cookie: string
 ): Promise<MaimaiRating> {
-  const [otogeDb, scores] = await Promise.all([fetchOtogeDbSongs(), fetchAllScoreData(cookie)]);
+  let sessionCookie = cookie;
+  if (parseCookies(cookie).has('clal')) {
+    sessionCookie = await refreshSession(cookie);
+  }
+
+  const [otogeDb, scores] = await Promise.all([
+    fetchOtogeDbSongs(),
+    fetchAllScoreData(sessionCookie),
+  ]);
 
   const ratedScores: RatedScore[] = [];
   for (const score of scores) {

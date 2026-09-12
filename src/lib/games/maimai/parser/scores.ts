@@ -182,6 +182,7 @@ export async function fetchScoreData(
 export async function fetchAllScoreData(cookie: string): Promise<ScoreData[]> {
   const results: ScoreData[][] = [];
   for (const difficulty of [0, 1, 2, 3, 4]) {
+    // oxlint-disable-next-line no-await-in-loop
     results.push(await fetchScoreData(cookie, difficulty));
     // Optional delay can be added here if needed, but sequential is usually enough
   }

@@ -42,7 +42,7 @@ export async function followRedirects(
       ...currentInit,
       headers: {
         ...DEFAULT_HEADERS,
-        Cookie: currentCookie,
+        ...(currentCookie ? { Cookie: currentCookie } : {}),
         ...currentInit.headers,
       },
       redirect: 'manual',
