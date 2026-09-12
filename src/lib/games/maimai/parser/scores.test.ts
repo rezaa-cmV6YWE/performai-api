@@ -1,6 +1,6 @@
-import { parseFcFromSrc, parseFsFromSrc, parseScoreData } from '@/lib/games/maimai/parser/scores';
-
 import { describe, expect, it } from 'bun:test';
+
+import { parseFcFromSrc, parseFsFromSrc, parseScoreData } from '@/lib/games/maimai/parser/scores';
 
 // ---------------------------------------------------------------------------
 // Helpers

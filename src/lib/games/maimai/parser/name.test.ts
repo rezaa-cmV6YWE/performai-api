@@ -1,6 +1,6 @@
-import { basenameFromUrl, normalizeName } from '@/lib/games/maimai/parser/name';
-
 import { describe, expect, it } from 'bun:test';
+
+import { basenameFromUrl, normalizeName } from '@/lib/games/maimai/parser/name';
 
 describe('normalizeName', () => {
   it('normalizes full-width characters to ASCII, lowercases, and trims whitespace', () => {

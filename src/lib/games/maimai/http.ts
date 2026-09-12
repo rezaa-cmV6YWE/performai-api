@@ -37,6 +37,7 @@ export async function followRedirects(
   let currentInit: RequestInit = { ...restInit, headers: customHeaders };
 
   while (true) {
+    // eslint-disable-next-line no-await-in-loop
     const res = await fetch(currentUrl, {
       ...currentInit,
       headers: {
