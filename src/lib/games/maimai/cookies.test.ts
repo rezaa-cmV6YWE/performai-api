@@ -81,4 +81,34 @@ describe('findCookie', () => {
   it('returns null for null header', () => {
     expect(findCookie(null, 'foo')).toBeNull();
   });
+
+  it('finds a cookie from a string[] (getSetCookie format)', () => {
+    expect(findCookie(['foo=bar; Path=/', 'clal=secret; Path=/'], 'clal')).toBe('secret');
+  });
+});
+
+describe('parseCookies (array input)', () => {
+  it('parses an array of Set-Cookie strings (getSetCookie format)', () => {
+    const parsed = parseCookies(['sid=12345; Path=/; HttpOnly', 'clal=abcdef; Path=/; Secure']);
+    expect(parsed.get('sid')).toBe('12345');
+    expect(parsed.get('clal')).toBe('abcdef');
+  });
+
+  it('returns empty map for empty array', () => {
+    expect(parseCookies([]).size).toBe(0);
+  });
+});
+
+describe('cookieBag (array input)', () => {
+  it('formats cookies from an array of Set-Cookie strings', () => {
+    const bag = cookieBag(['a=1; Path=/', 'b=2; Path=/']);
+    expect(bag).toBe('a=1; b=2');
+  });
+});
+
+describe('mergeCookies (array input)', () => {
+  it('merges cookies when new header is a string array', () => {
+    const merged = mergeCookies('a=1; b=2', ['b=updated; Path=/', 'c=3; Path=/']);
+    expect(merged).toBe('a=1; b=updated; c=3');
+  });
 });

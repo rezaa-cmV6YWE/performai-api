@@ -18,7 +18,7 @@ export async function loginMaimaiIntl(segaId: string, password: string): Promise
     redirect: 'manual',
   });
 
-  const preCookies = cookieBag(loginPage.headers.get('set-cookie'));
+  const preCookies = cookieBag(loginPage.headers.getSetCookie());
 
   const body = new URLSearchParams({ sid: segaId, password });
   const loginRes = await fetch(LOGIN_POST_URL, {
@@ -47,12 +47,12 @@ export async function loginMaimaiIntl(segaId: string, password: string): Promise
     throw new GameError('unexpected login redirect', 'UNEXPECTED_REDIRECT', 500);
   }
 
-  const clal = findCookie(loginRes.headers.get('set-cookie'), 'clal');
+  const clal = findCookie(loginRes.headers.getSetCookie(), 'clal');
   if (!clal) {
     throw new GameError('login succeeded but no session cookie returned', 'NO_SESSION_COOKIE', 500);
   }
 
-  const initialCookie = mergeCookies(preCookies, loginRes.headers.get('set-cookie'));
+  const initialCookie = mergeCookies(preCookies, loginRes.headers.getSetCookie());
   const final = await followRedirects(location, initialCookie);
 
   return final.cookie;

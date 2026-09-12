@@ -68,7 +68,7 @@ export async function followRedirects(
       throw new AuthError('session expired or invalid');
     }
 
-    currentCookie = mergeCookies(currentCookie, res.headers.get('set-cookie'));
+    currentCookie = mergeCookies(currentCookie, res.headers.getSetCookie());
     currentUrl = new URL(location, currentUrl).toString();
     redirects++;
 
