@@ -23,18 +23,17 @@ export async function getMaimaiProfile(
 ): Promise<MaimaiProfileExtended> {
   const baseUrl = MAIMAI_URLS[server];
 
-  const [profileRes, nameplateRes, frameRes] = await Promise.all([
-    maimaiFetch(`${baseUrl}/playerData/`, cookie),
-    maimaiFetch(`${baseUrl}/collection/nameplate/`, cookie),
-    maimaiFetch(`${baseUrl}/collection/frame/`, cookie),
-  ]);
+  const profileRes = await maimaiFetch(`${baseUrl}/playerData/`, cookie);
+  const nameplateRes = await maimaiFetch(`${baseUrl}/collection/nameplate/`, cookie);
+  const frameRes = await maimaiFetch(`${baseUrl}/collection/frame/`, cookie);
 
   const isAuthError = [profileRes, nameplateRes, frameRes].some(
     (res) => res.status === 401 || res.status === 403
   );
 
   if (isAuthError) {
-    throw new AuthError('invalid or expired session cookie');
+    const statuses = [profileRes.status, nameplateRes.status, frameRes.status].join(', ');
+    throw new AuthError(`invalid or expired session cookie (HTTP ${statuses})`);
   }
 
   if (!profileRes.ok || !nameplateRes.ok || !frameRes.ok) {
@@ -46,11 +45,9 @@ export async function getMaimaiProfile(
     throw new FetchError(`maimai returned ${failedStatus}`, failedStatus);
   }
 
-  const [profileHtml, nameplateHtml, frameHtml] = await Promise.all([
-    profileRes.text(),
-    nameplateRes.text(),
-    frameRes.text(),
-  ]);
+  const profileHtml = await profileRes.text();
+  const nameplateHtml = await nameplateRes.text();
+  const frameHtml = await frameRes.text();
 
   const parsedProfile = parseProfile(profileHtml, server);
   const parsedNameplate = parseActiveCollection(nameplateHtml, server);

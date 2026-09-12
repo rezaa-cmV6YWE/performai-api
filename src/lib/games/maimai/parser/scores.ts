@@ -168,7 +168,7 @@ export async function fetchScoreData(
   const res = await maimaiFetch(url, cookie);
 
   if (res.status === 401 || res.status === 403) {
-    throw new AuthError('session expired or invalid');
+    throw new AuthError(`session expired or invalid (HTTP ${res.status})`);
   }
 
   if (!res.ok) {
@@ -180,9 +180,10 @@ export async function fetchScoreData(
 }
 
 export async function fetchAllScoreData(cookie: string): Promise<ScoreData[]> {
-  const results = await Promise.all(
-    [0, 1, 2, 3, 4].map((difficulty) => fetchScoreData(cookie, difficulty))
-  );
-
+  const results: ScoreData[][] = [];
+  for (const difficulty of [0, 1, 2, 3, 4]) {
+    results.push(await fetchScoreData(cookie, difficulty));
+    // Optional delay can be added here if needed, but sequential is usually enough
+  }
   return results.flat();
 }
