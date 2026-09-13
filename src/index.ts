@@ -9,10 +9,8 @@ const port = Number(process.env.PORT) || 3000;
 export const app = new Elysia()
   .use(errorHandler)
   .use(openapiPlugin)
-  .get('/ok', () => ({ data: { ok: true } }))
+  .get('/', ({ redirect }) => redirect('/docs'))
   .use(maimaiModule)
   .listen(port);
 
-console.log(`🦊 Elysia is running at http://${app.server?.hostname}:${app.server?.port}`);
-
-export default app;
+console.log(`performai is running at http://${app.server?.hostname}:${app.server?.port}`);
