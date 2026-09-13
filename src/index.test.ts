@@ -3,12 +3,11 @@ import { describe, expect, it } from 'bun:test';
 import { app } from '@/index';
 
 describe('API routes and documentation', () => {
-  describe('GET /ok', () => {
-    it('returns 200 with ok status', async () => {
-      const res = await app.handle(new Request('http://localhost/ok'));
-      expect(res.status).toBe(200);
-      const body = await res.json();
-      expect(body).toEqual({ data: { ok: true } });
+  describe('GET /', () => {
+    it('redirects to /docs', async () => {
+      const res = await app.handle(new Request('http://localhost/'));
+      expect(res.status).toBe(302);
+      expect(res.headers.get('location')).toBe('/docs');
     });
   });
 
@@ -21,7 +20,6 @@ describe('API routes and documentation', () => {
       const text = await res.text();
       expect(text).toContain('openapi');
       expect(text).toContain('performai API');
-      expect(text).toContain('/ok');
       expect(text).toContain('/v1/{server}/maimai/login');
       expect(text).toContain('/v1/{server}/maimai/profile');
       expect(text).toContain('/v1/{server}/maimai/rating');
