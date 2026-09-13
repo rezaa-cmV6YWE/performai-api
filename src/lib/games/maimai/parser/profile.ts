@@ -2,7 +2,7 @@ import { load } from 'cheerio';
 
 import { ParseError } from '@/lib/errors';
 import { MAIMAI_URLS, type MaimaiServer } from '@/lib/games/maimai/consts';
-import type { MaimaiProfile } from '@/lib/games/maimai/schemas';
+import type { Circle, MaimaiProfile } from '@/lib/games/maimai/schemas';
 
 function resolveUrl(src: string | undefined, server: MaimaiServer): string | null {
   if (!src) return null;
@@ -112,4 +112,15 @@ export function parseActiveCollection(html: string, server: MaimaiServer): strin
   const activeCollectionSrc = activeCollectionElement.attr('src');
 
   return resolveUrl(activeCollectionSrc, server);
+}
+
+export function parseCircle(html: string, server: MaimaiServer): Circle {
+  const $ = load(html);
+  const name = $('.circle_profile_circle_name').text().trim() || null;
+  const circleClass = $('.circle_profile_class').children('img').attr('src');
+
+  return {
+    name,
+    class: resolveUrl(circleClass, server),
+  };
 }

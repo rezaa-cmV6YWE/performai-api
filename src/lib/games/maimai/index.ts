@@ -9,7 +9,11 @@ import { refreshSession } from '@/lib/games/maimai/auth';
 import { MAIMAI_URLS, type MaimaiServer } from '@/lib/games/maimai/consts';
 import { parseCookies } from '@/lib/games/maimai/cookies';
 import { maimaiFetch } from '@/lib/games/maimai/http';
-import { parseActiveCollection, parseProfile } from '@/lib/games/maimai/parser/profile';
+import {
+  parseActiveCollection,
+  parseCircle,
+  parseProfile,
+} from '@/lib/games/maimai/parser/profile';
 import { fetchAllScoreData, type ScoreData } from '@/lib/games/maimai/parser/scores';
 import {
   calculateSongRating,
@@ -31,44 +35,55 @@ export async function getMaimaiProfile(
 
   const baseUrl = MAIMAI_URLS[server];
 
-  const [profileRes, nameplateRes, frameRes] = await Promise.all([
+  const [profileRes, nameplateRes, frameRes, circleRes] = await Promise.all([
     maimaiFetch(`${baseUrl}/playerData/`, sessionCookie),
     maimaiFetch(`${baseUrl}/collection/nameplate/`, sessionCookie),
     maimaiFetch(`${baseUrl}/collection/frame/`, sessionCookie),
+    maimaiFetch(`${baseUrl}/circle/`, sessionCookie),
   ]);
 
-  const isAuthError = [profileRes, nameplateRes, frameRes].some(
+  const isAuthError = [profileRes, nameplateRes, frameRes, circleRes].some(
     (res) => res.status === 401 || res.status === 403
   );
 
   if (isAuthError) {
-    const statuses = [profileRes.status, nameplateRes.status, frameRes.status].join(', ');
+    const statuses = [
+      profileRes.status,
+      nameplateRes.status,
+      frameRes.status,
+      circleRes.status,
+    ].join(', ');
     throw new AuthError(`invalid or expired session cookie (HTTP ${statuses})`);
   }
 
-  if (!profileRes.ok || !nameplateRes.ok || !frameRes.ok) {
+  if (!profileRes.ok || !nameplateRes.ok || !frameRes.ok || !circleRes.ok) {
     const failedStatus = !profileRes.ok
       ? profileRes.status
       : !nameplateRes.ok
         ? nameplateRes.status
-        : frameRes.status;
+        : !frameRes.ok
+          ? frameRes.status
+          : circleRes.status;
     throw new FetchError(`maimai returned ${failedStatus}`, failedStatus);
   }
 
-  const [profileHtml, nameplateHtml, frameHtml] = await Promise.all([
+  const [profileHtml, nameplateHtml, frameHtml, circleHtml] = await Promise.all([
     profileRes.text(),
     nameplateRes.text(),
     frameRes.text(),
+    circleRes.text(),
   ]);
 
   const parsedProfile = parseProfile(profileHtml, server);
   const parsedNameplate = parseActiveCollection(nameplateHtml, server);
   const parsedFrame = parseActiveCollection(frameHtml, server);
+  const parsedCircle = parseCircle(circleHtml, server);
 
   return {
     ...parsedProfile,
     nameplate: parsedNameplate,
     frame: parsedFrame,
+    circle: parsedCircle,
   };
 }
 

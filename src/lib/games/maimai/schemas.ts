@@ -23,9 +23,20 @@ export const MaimaiProfile = z.object({
 
 export type MaimaiProfile = z.infer<typeof MaimaiProfile>;
 
+export const Circle = z
+  .object({
+    name: z.string().nullable().optional(),
+    class: z.url().nullable().optional(),
+  })
+  .nullable()
+  .optional();
+
+export type Circle = z.infer<typeof Circle>;
+
 export const MaimaiProfileExtended = MaimaiProfile.extend({
   nameplate: z.url().nullable().optional(),
   frame: z.url().nullable().optional(),
+  circle: Circle,
 });
 
 export type MaimaiProfileExtended = z.infer<typeof MaimaiProfileExtended>;
