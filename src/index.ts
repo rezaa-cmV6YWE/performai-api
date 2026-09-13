@@ -6,11 +6,6 @@ import { openapiPlugin } from '@/plugins/openapi';
 
 const port = Number(process.env.PORT) || 3000;
 
-export const app = new Elysia()
-  .use(errorHandler)
-  .use(openapiPlugin)
-  .get('/', ({ redirect }) => redirect('/docs'))
-  .use(maimaiModule)
-  .listen(port);
+export const app = new Elysia().use(errorHandler).use(openapiPlugin).use(maimaiModule).listen(port);
 
 console.log(`performai is running at http://${app.server?.hostname}:${app.server?.port}`);
