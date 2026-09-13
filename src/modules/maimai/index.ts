@@ -1,7 +1,7 @@
 import { Elysia } from 'elysia';
 import { z } from 'zod';
 
-import { MaimaiProfile, MaimaiRating } from '@/lib/games/maimai/schemas';
+import { MaimaiProfileExtended, MaimaiRating } from '@/lib/games/maimai/schemas';
 import { cookieHeaders, loginBody, serverParams } from '@/modules/maimai/model';
 import { MaimaiService } from '@/modules/maimai/service';
 
@@ -46,7 +46,7 @@ export const maimaiModule = new Elysia({
       headers: cookieHeaders,
       response: {
         200: z.object({
-          data: MaimaiProfile,
+          data: MaimaiProfileExtended,
         }),
         422: ErrorResponse,
         500: ErrorResponse,
