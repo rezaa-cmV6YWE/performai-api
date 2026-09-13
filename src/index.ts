@@ -9,7 +9,11 @@ const port = Number(process.env.PORT) || 3000;
 export const app = new Elysia()
   .use(errorHandler)
   .use(openapiPlugin)
-  .get('/', ({ redirect }) => redirect('/docs'))
+  .get('/', ({ redirect }) => redirect('/docs'), {
+    detail: {
+      hide: true,
+    },
+  })
   .use(maimaiModule)
   .listen(port);
 
