@@ -25,7 +25,7 @@ Compact orientation for coding sessions on `performai-api`.
 
 ## Entrypoints
 
-- App entry: `src/index.ts` → Elysia app mounts maimai module at `/v1/:server/maimai`, exposes `GET /ok` health check, serves OpenAPI spec and Scalar docs. Runs on port 3000 locally.
+- App entry: `src/index.ts` → Elysia app mounts maimai module at `/v1/:server/maimai`, redirects `GET /` to `/docs`, and serves OpenAPI spec and Scalar docs via `@elysiajs/openapi`. Runs on port 3000 locally (configurable via `PORT` env var).
 - Maimai module: `src/modules/maimai/index.ts` (controller), `src/modules/maimai/service.ts` (service), `src/modules/maimai/model.ts` (validation schemas).
 
 ## API shape & Implemented features
@@ -40,24 +40,27 @@ Compact orientation for coding sessions on `performai-api`.
 
 ### Implemented Endpoints
 
-1. `GET /ok`: Health check returning `{ data: { ok: true } }`.
-2. `POST /v1/intl/maimai/login`: Authenticates with SEGA ID credentials and returns `{ data: { cookie: "..." } }`.
-3. `GET /v1/intl/maimai/profile`: Requires `x-maimai-cookie` header. Fetches player profile data.
-4. `GET /v1/intl/maimai/rating`: Requires `x-maimai-cookie` header. Calculates Best 50 rating breakdown.
+1. `GET /`: Redirects to `/docs` (interactive API documentation).
+2. `GET /docs`: Interactive API documentation powered by Scalar.
+3. `GET /docs/json`: OpenAPI specification in JSON format.
+4. `POST /v1/intl/maimai/login`: Authenticates with SEGA ID credentials and returns `{ data: { cookie: "..." } }`.
+5. `GET /v1/intl/maimai/profile`: Requires `x-maimai-cookie` header. Fetches player profile data.
+6. `GET /v1/intl/maimai/rating`: Requires `x-maimai-cookie` header. Calculates Best 50 rating breakdown.
 
 ## Architecture & Subsystems
 
-- **Elysia MVC Pattern**: Controller (Elysia instance = `src/modules/maimai/index.ts`), Service (abstract class with static methods = `service.ts`), Model (Zod schemas = `model.ts`).
-- **Global Error Handler (`src/plugins/error-handler.ts`):** Catches `GameError` instances and returns structured JSON error responses with appropriate status codes.
-- **OpenAPI Plugin (`src/plugins/openapi.ts`):** `@elysiajs/openapi` with Scalar UI at `/scalar`, docs redirects at `/docs` and `/reference`, static YAML spec at `/openapi.yaml`.
-- **Auth flow (`src/lib/games/maimai/auth.ts`):** Performs a 3-step SEGA ID redirect dance; detects failures via redirect patterns.
-- **Profile parser (`src/lib/games/maimai/parser/profile.ts`):** Scrapes player details from HTML using Cheerio selectors.
-- **Score parser (`src/lib/games/maimai/parser/scores.ts`):** Scrapes score cards across all 5 difficulties.
-- **Name normalizer (`src/lib/games/maimai/parser/name.ts`):** Converts full-width Japanese characters to ASCII, normalizes whitespace.
-- **Rating calculation (`src/lib/games/maimai/rating/calculator.ts`):** Accuracy factor table, AP bonus, Best 50 selection.
-- **OtogeDB Integration (`src/lib/games/maimai/songs/otoge-db.ts`):** Fetches and matches chart metadata from OtogeDB.
-- **Asset resolution (`src/lib/games/maimai/assets.ts`):** Resolves absolute URLs for jackets, badges, and rating plates.
-- **HTTP client (`src/lib/games/maimai/http.ts`):** Fetch wrapper with redirect chasing and cookie preservation.
+- **Elysia MVC Pattern**: Controller (Elysia instance = `src/modules/maimai/index.ts`), Service (`MaimaiService` object in `src/modules/maimai/service.ts`), Model (Zod schemas = `src/modules/maimai/model.ts`).
+- **Global Error Handler (`src/plugins/error-handler.ts`):** Catches `VALIDATION` errors (status 422), `GameError` instances (and subclasses `AuthError`, `FetchError`, `ParseError`), and general unhandled errors (status 500), returning structured `{ error: { code, message } }` JSON responses.
+- **OpenAPI Plugin (`src/plugins/openapi.ts`):** `@elysiajs/openapi` configured with Scalar provider at `/docs` and OpenAPI JSON at `/docs/json`. Tagged for Maimai endpoints.
+- **Auth flow (`src/lib/games/maimai/auth.ts`):** Performs a 3-step SEGA ID redirect dance; preserves session cookies including `clal` token; provides `refreshSession` to exchange `clal` for fresh IP-bound session cookies (`_t`, `userId`).
+- **Cookie handling (`src/lib/games/maimai/cookies.ts`):** Custom Set-Cookie parser, cookie bag formatter, and cookie merger avoiding library bugs with comma-containing cookie values (e.g. `Expires`).
+- **Profile parser (`src/lib/games/maimai/parser/profile.ts`):** Scrapes player details (rating, title, stars, counts) and collection items (nameplate and frame) from HTML using Cheerio selectors.
+- **Score parser (`src/lib/games/maimai/parser/scores.ts`):** Scrapes score cards across all 5 difficulties (`basic`, `advanced`, `expert`, `master`, `remaster`).
+- **Name normalizer (`src/lib/games/maimai/parser/name.ts`):** Converts full-width Japanese characters to ASCII (NFKC), normalizes whitespace, and extracts URL basenames.
+- **Rating calculation (`src/lib/games/maimai/rating/calculator.ts`):** Accuracy factor table, AP bonus (+1 on version >= 25), Best 50 selection (15 new + 35 old songs).
+- **OtogeDB Integration (`src/lib/games/maimai/songs/otoge-db.ts`):** Fetches and matches chart metadata from OtogeDB (`music-ex-intl.json`), maps version codes to internal numbers, and detects current version based on release dates.
+- **Asset resolution (`src/lib/games/maimai/assets.ts`):** Resolves absolute URLs for jackets, FC/FS combo badges, and rating tier plates.
+- **HTTP client (`src/lib/games/maimai/http.ts`):** Fetch wrapper (`followRedirects`, `maimaiFetch`) with redirect chasing, cookie jar preservation, custom headers (`User-Agent`, `Referer`), and auth error detection.
 
 ## Editing guidance
 
