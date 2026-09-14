@@ -33,7 +33,7 @@ Compact orientation for coding sessions on `performai-api`.
 
 - Base path: `/v1/:server/:game`.
 - Valid params: `server ∈ {intl, jp, cn}`, `game ∈ {maimai, chunithm, ongeki}`.
-- Currently, **`intl/maimai`** is fully implemented, and **`intl/chunithm`** supports login. All other combos return `501` with error code `NOT_IMPLEMENTED` (or 422 if server is unlisted for the game).
+- Currently, **`intl/maimai`** is fully implemented, and **`intl/chunithm`** supports login and profile. All other combos return `501` with error code `NOT_IMPLEMENTED` (or 422 if server is unlisted for the game).
 - Response envelope:
   - Success: `{ "data": ... }`
   - Error: `{ "error": { "code": "...", "message": "..." } }`
@@ -48,6 +48,7 @@ Compact orientation for coding sessions on `performai-api`.
 5. `GET /v1/intl/maimai/profile`: Requires `x-maimai-cookie` header. Fetches player profile data.
 6. `GET /v1/intl/maimai/rating`: Requires `x-maimai-cookie` header. Calculates Best 50 rating breakdown.
 7. `POST /v1/intl/chunithm/login`: Authenticates with SEGA ID credentials and returns `{ data: { cookie: "..." } }`.
+8. `GET /v1/intl/chunithm/profile`: Requires `x-chunithm-cookie` header. Fetches player profile data.
 
 ## Architecture & Subsystems
 
@@ -58,6 +59,7 @@ Compact orientation for coding sessions on `performai-api`.
 - **Shared Cookie handling (`src/lib/shared/cookies.ts`):** Custom Set-Cookie parser, cookie bag formatter, and cookie merger avoiding library bugs with comma-containing cookie values (e.g. `Expires`).
 - **Shared HTTP client (`src/lib/shared/http.ts`):** Fetch wrapper (`followRedirects`) with redirect chasing, cookie jar preservation, custom headers (`User-Agent`), and auth error detection.
 - **Profile parser (`src/lib/games/maimai/parser/profile.ts`):** Scrapes player details (rating, title, stars, counts) and collection items (nameplate and frame) from HTML using Cheerio selectors.
+- **Chunithm Profile parser (`src/lib/games/chunithm/parser/profile.ts`):** Scrapes Chunithm player details (rating, highest rating, level, reborn, overpower, titles, character, frame, team with emblem, play count, currency) and collection items (nameplate) from HTML using Cheerio selectors.
 - **Score parser (`src/lib/games/maimai/parser/scores.ts`):** Scrapes score cards across all 5 difficulties (`basic`, `advanced`, `expert`, `master`, `remaster`).
 - **Name normalizer (`src/lib/games/maimai/parser/name.ts`):** Converts full-width Japanese characters to ASCII (NFKC), normalizes whitespace, and extracts URL basenames.
 - **Rating calculation (`src/lib/games/maimai/rating/calculator.ts`):** Accuracy factor table, AP bonus (+1 on version >= 25), Best 50 selection (15 new + 35 old songs).
