@@ -25,6 +25,7 @@ describe('API routes and documentation', () => {
       expect(text).toContain('/v1/{server}/maimai/rating');
       expect(text).toContain('/v1/{server}/chunithm/login');
       expect(text).toContain('/v1/{server}/chunithm/profile');
+      expect(text).toContain('/v1/{server}/chunithm/rating');
     });
   });
 
@@ -135,6 +136,24 @@ describe('API routes and documentation', () => {
     it('GET /v1/jp/chunithm/profile returns 422 for invalid server', async () => {
       const res = await app.handle(
         new Request('http://localhost/v1/jp/chunithm/profile', {
+          headers: { 'x-chunithm-cookie': 'dummy-cookie' },
+        })
+      );
+      expect(res.status).toBe(422);
+      const body = (await res.json()) as { error: { code: string; message: string } };
+      expect(body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('GET /v1/intl/chunithm/rating fails on missing x-chunithm-cookie header', async () => {
+      const res = await app.handle(new Request('http://localhost/v1/intl/chunithm/rating'));
+      expect(res.status).toBe(422);
+      const body = (await res.json()) as { error: { code: string; message: string } };
+      expect(body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('GET /v1/jp/chunithm/rating returns 422 for invalid server', async () => {
+      const res = await app.handle(
+        new Request('http://localhost/v1/jp/chunithm/rating', {
           headers: { 'x-chunithm-cookie': 'dummy-cookie' },
         })
       );

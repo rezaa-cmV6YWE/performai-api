@@ -1,6 +1,6 @@
 import { status } from 'elysia';
 
-import { getChunithmProfile } from '@/lib/games/chunithm';
+import { getChunithmProfile, getChunithmRating } from '@/lib/games/chunithm';
 import { loginChunithmIntl } from '@/lib/games/chunithm/auth';
 import type { ChunithmServer } from '@/lib/games/chunithm/consts';
 
@@ -31,5 +31,19 @@ export const ChunithmService = {
 
     const profile = await getChunithmProfile(server as ChunithmServer, cookie);
     return { data: profile };
+  },
+
+  async rating(server: string, cookie: string) {
+    if (server !== 'intl') {
+      return status(501, {
+        error: {
+          code: 'NOT_IMPLEMENTED',
+          message: `server '${server}' not yet supported for chunithm`,
+        },
+      });
+    }
+
+    const rating = await getChunithmRating(server as ChunithmServer, cookie);
+    return { data: rating };
   },
 };

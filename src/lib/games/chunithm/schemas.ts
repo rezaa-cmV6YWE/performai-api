@@ -15,13 +15,13 @@ export const ChunithmCharacter = z.object({
 
 export type ChunithmCharacter = z.infer<typeof ChunithmCharacter>;
 
-export const ChunithmRating = z.object({
+export const ChunithmProfileRating = z.object({
   value: z.number().nonnegative(),
   color: z.string().nullable().optional(),
   images: z.array(z.url()).nullable().optional(),
 });
 
-export type ChunithmRating = z.infer<typeof ChunithmRating>;
+export type ChunithmProfileRating = z.infer<typeof ChunithmProfileRating>;
 
 export const ChunithmPlayCount = z.object({
   versionPlayCount: z.number().int().nonnegative().nullable().optional(),
@@ -35,7 +35,7 @@ export const ChunithmProfile = z.object({
   friendCode: z.string().nullable().optional(),
   level: z.number().int().nonnegative().nullable().optional(),
   reborn: z.number().int().nonnegative().nullable().optional(),
-  rating: ChunithmRating,
+  rating: ChunithmProfileRating,
   highestRating: z.number().nonnegative().nullable().optional(),
   overpower: z
     .object({
@@ -71,3 +71,39 @@ export const ChunithmProfileExtended = ChunithmProfile.extend({
 });
 
 export type ChunithmProfileExtended = z.infer<typeof ChunithmProfileExtended>;
+
+export const ChunithmDifficulty = z.enum(['basic', 'advanced', 'expert', 'master', 'ultima']);
+
+export type ChunithmDifficulty = z.infer<typeof ChunithmDifficulty>;
+
+export const ChunithmRatingSong = z.object({
+  id: z.string(),
+  title: z.string(),
+  difficulty: ChunithmDifficulty,
+  level: z.string().nullable().optional(),
+  internalLevel: z.number().nullable().optional(),
+  score: z.number().int().nonnegative(),
+  rating: z.number().nonnegative(),
+  jacket: z.url().nullable().optional(),
+  combo: z.object({
+    type: z.string().nullable(),
+    image: z.url().nullable(),
+  }),
+  chain: z.object({
+    type: z.string().nullable(),
+    image: z.url().nullable(),
+  }),
+});
+
+export type ChunithmRatingSong = z.infer<typeof ChunithmRatingSong>;
+
+export const ChunithmRating = z.object({
+  rating: z.number().nonnegative(),
+  newRatingSongs: z.array(ChunithmRatingSong),
+  oldRatingSongs: z.array(ChunithmRatingSong),
+});
+
+export type ChunithmRating = z.infer<typeof ChunithmRating>;
+
+export const ChunithmRatingData = ChunithmRating;
+export type ChunithmRatingData = ChunithmRating;

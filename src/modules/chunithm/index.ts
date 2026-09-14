@@ -1,7 +1,7 @@
 import { Elysia } from 'elysia';
 import { z } from 'zod';
 
-import { ChunithmProfileExtended } from '@/lib/games/chunithm/schemas';
+import { ChunithmProfileExtended, ChunithmRating } from '@/lib/games/chunithm/schemas';
 import { cookieHeaders, loginBody, serverParams } from '@/modules/chunithm/model';
 import { ChunithmService } from '@/modules/chunithm/service';
 
@@ -56,6 +56,27 @@ export const chunithmModule = new Elysia({
         tags: ['Chunithm'],
         summary: 'Get Player Profile',
         description: 'Fetches the player profile including rating, overpower, and currency.',
+      },
+    }
+  )
+  .get(
+    '/rating',
+    ({ params, headers }) => ChunithmService.rating(params.server, headers['x-chunithm-cookie']),
+    {
+      params: serverParams,
+      headers: cookieHeaders,
+      response: {
+        200: z.object({
+          data: ChunithmRating,
+        }),
+        422: ErrorResponse,
+        500: ErrorResponse,
+        501: ErrorResponse,
+      },
+      detail: {
+        tags: ['Chunithm'],
+        summary: 'Get Player Rating',
+        description: 'Fetches the top 50 songs that make up the player rating.',
       },
     }
   );
