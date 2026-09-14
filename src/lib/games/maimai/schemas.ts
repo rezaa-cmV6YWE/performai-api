@@ -65,7 +65,6 @@ export type MaimaiRatingSong = z.infer<typeof MaimaiRatingSong>;
 
 export const MaimaiRating = z.object({
   rating: z.number().int(),
-  ratingImage: z.url().nullable(),
   newRatingSongs: z.array(MaimaiRatingSong),
   oldRatingSongs: z.array(MaimaiRatingSong),
 });

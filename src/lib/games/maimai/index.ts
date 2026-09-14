@@ -1,10 +1,5 @@
 import { AuthError, FetchError } from '@/lib/errors';
-import {
-  getFcImageUrl,
-  getFsImageUrl,
-  getJacketUrl,
-  getRatingBadgeUrl,
-} from '@/lib/games/maimai/assets';
+import { getFcImageUrl, getFsImageUrl, getJacketUrl } from '@/lib/games/maimai/assets';
 import { refreshSession } from '@/lib/games/maimai/auth';
 import { MAIMAI_URLS, type MaimaiServer } from '@/lib/games/maimai/consts';
 import { parseCookies } from '@/lib/games/maimai/cookies';
@@ -148,7 +143,6 @@ export async function getMaimaiRating(
 
   return {
     rating,
-    ratingImage: getRatingBadgeUrl(rating, otogeDb.currentVersion),
     newRatingSongs: newRatingSongs.map(toRatingSong),
     oldRatingSongs: oldRatingSongs.map(toRatingSong),
   };
