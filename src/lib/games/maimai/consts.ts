@@ -1,3 +1,7 @@
+import { SEGA_AUTH_GATEWAY_URL } from '@/lib/shared/consts';
+
+export { DEFAULT_HEADERS, MAX_REDIRECTS, USER_AGENT } from '@/lib/shared/consts';
+
 export const MAIMAI_URLS = {
   intl: 'https://maimaidx-eng.com/maimai-mobile',
   jp: 'https://maimaidx.jp/maimai-mobile',
@@ -6,17 +10,8 @@ export const MAIMAI_URLS = {
 
 export type MaimaiServer = keyof typeof MAIMAI_URLS;
 
-export const MAIMAI_AUTH_GATEWAY_URL = 'https://lng-tgk-aime-gw.am-all.net/common_auth';
+export const MAIMAI_AUTH_GATEWAY_URL = SEGA_AUTH_GATEWAY_URL;
 export const MAIMAI_BACK_URL = 'https://maimai.sega.com/';
-
-export const USER_AGENT =
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
-
-export const DEFAULT_HEADERS = {
-  'User-Agent': USER_AGENT,
-} as const;
-
-export const MAX_REDIRECTS = 5;
 
 export const OTOGEDB_INTL_URL =
   'https://raw.githubusercontent.com/zvuc/otoge-db/master/maimai/data/music-ex-intl.json';

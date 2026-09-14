@@ -23,6 +23,9 @@ describe('API routes and documentation', () => {
       expect(text).toContain('/v1/{server}/maimai/login');
       expect(text).toContain('/v1/{server}/maimai/profile');
       expect(text).toContain('/v1/{server}/maimai/rating');
+      expect(text).toContain('/v1/{server}/chunithm/login');
+      expect(text).toContain('/v1/{server}/chunithm/profile');
+      expect(text).toContain('/v1/{server}/chunithm/rating');
     });
   });
 
@@ -95,6 +98,68 @@ describe('API routes and documentation', () => {
       expect(res.status).toBe(501);
       const body = (await res.json()) as { error: { code: string; message: string } };
       expect(body.error.code).toBe('NOT_IMPLEMENTED');
+    });
+
+    it('POST /v1/intl/chunithm/login fails on missing credentials', async () => {
+      const res = await app.handle(
+        new Request('http://localhost/v1/intl/chunithm/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({}),
+        })
+      );
+      expect(res.status).toBe(422);
+      const body = (await res.json()) as { error: { code: string; message: string } };
+      expect(body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('POST /v1/jp/chunithm/login returns 422 for invalid server', async () => {
+      const res = await app.handle(
+        new Request('http://localhost/v1/jp/chunithm/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ segaId: 'user', password: 'pwd' }),
+        })
+      );
+      expect(res.status).toBe(422);
+      const body = (await res.json()) as { error: { code: string; message: string } };
+      expect(body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('GET /v1/intl/chunithm/profile fails on missing x-chunithm-cookie header', async () => {
+      const res = await app.handle(new Request('http://localhost/v1/intl/chunithm/profile'));
+      expect(res.status).toBe(422);
+      const body = (await res.json()) as { error: { code: string; message: string } };
+      expect(body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('GET /v1/jp/chunithm/profile returns 422 for invalid server', async () => {
+      const res = await app.handle(
+        new Request('http://localhost/v1/jp/chunithm/profile', {
+          headers: { 'x-chunithm-cookie': 'dummy-cookie' },
+        })
+      );
+      expect(res.status).toBe(422);
+      const body = (await res.json()) as { error: { code: string; message: string } };
+      expect(body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('GET /v1/intl/chunithm/rating fails on missing x-chunithm-cookie header', async () => {
+      const res = await app.handle(new Request('http://localhost/v1/intl/chunithm/rating'));
+      expect(res.status).toBe(422);
+      const body = (await res.json()) as { error: { code: string; message: string } };
+      expect(body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('GET /v1/jp/chunithm/rating returns 422 for invalid server', async () => {
+      const res = await app.handle(
+        new Request('http://localhost/v1/jp/chunithm/rating', {
+          headers: { 'x-chunithm-cookie': 'dummy-cookie' },
+        })
+      );
+      expect(res.status).toBe(422);
+      const body = (await res.json()) as { error: { code: string; message: string } };
+      expect(body.error.code).toBe('VALIDATION_ERROR');
     });
   });
 });
