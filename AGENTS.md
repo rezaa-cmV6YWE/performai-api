@@ -25,14 +25,15 @@ Compact orientation for coding sessions on `performai-api`.
 
 ## Entrypoints
 
-- App entry: `src/index.ts` → Elysia app mounts maimai module at `/v1/:server/maimai`, redirects `GET /` to `/docs`, and serves OpenAPI spec and Scalar docs via `@elysiajs/openapi`. Runs on port 3000 locally (configurable via `PORT` env var).
+- App entry: `src/index.ts` → Elysia app mounts maimai module at `/v1/:server/maimai`, chunithm module at `/v1/:server/chunithm`, redirects `GET /` to `/docs`, and serves OpenAPI spec and Scalar docs via `@elysiajs/openapi`. Runs on port 3000 locally (configurable via `PORT` env var).
 - Maimai module: `src/modules/maimai/index.ts` (controller), `src/modules/maimai/service.ts` (service), `src/modules/maimai/model.ts` (validation schemas).
+- Chunithm module: `src/modules/chunithm/index.ts` (controller), `src/modules/chunithm/service.ts` (service), `src/modules/chunithm/model.ts` (validation schemas).
 
 ## API shape & Implemented features
 
 - Base path: `/v1/:server/:game`.
 - Valid params: `server ∈ {intl, jp, cn}`, `game ∈ {maimai, chunithm, ongeki}`.
-- Currently, **`intl/maimai`** is fully implemented. All other combos return `501` with error code `NOT_IMPLEMENTED`.
+- Currently, **`intl/maimai`** is fully implemented, and **`intl/chunithm`** supports login. All other combos return `501` with error code `NOT_IMPLEMENTED` (or 422 if server is unlisted for the game).
 - Response envelope:
   - Success: `{ "data": ... }`
   - Error: `{ "error": { "code": "...", "message": "..." } }`
@@ -46,14 +47,16 @@ Compact orientation for coding sessions on `performai-api`.
 4. `POST /v1/intl/maimai/login`: Authenticates with SEGA ID credentials and returns `{ data: { cookie: "..." } }`.
 5. `GET /v1/intl/maimai/profile`: Requires `x-maimai-cookie` header. Fetches player profile data.
 6. `GET /v1/intl/maimai/rating`: Requires `x-maimai-cookie` header. Calculates Best 50 rating breakdown.
+7. `POST /v1/intl/chunithm/login`: Authenticates with SEGA ID credentials and returns `{ data: { cookie: "..." } }`.
 
 ## Architecture & Subsystems
 
-- **Elysia MVC Pattern**: Controller (Elysia instance = `src/modules/maimai/index.ts`), Service (`MaimaiService` object in `src/modules/maimai/service.ts`), Model (Zod schemas = `src/modules/maimai/model.ts`).
+- **Elysia MVC Pattern**: Controller (Elysia instance = `src/modules/{game}/index.ts`), Service (`{Game}Service` object in `src/modules/{game}/service.ts`), Model (Zod schemas = `src/modules/{game}/model.ts`).
 - **Global Error Handler (`src/plugins/error-handler.ts`):** Catches `VALIDATION` errors (status 422), `GameError` instances (and subclasses `AuthError`, `FetchError`, `ParseError`), and general unhandled errors (status 500), returning structured `{ error: { code, message } }` JSON responses.
-- **OpenAPI Plugin (`src/plugins/openapi.ts`):** `@elysiajs/openapi` configured with Scalar provider at `/docs` and OpenAPI JSON at `/docs/json`. Tagged for Maimai endpoints.
-- **Auth flow (`src/lib/games/maimai/auth.ts`):** Performs a 3-step SEGA ID redirect dance; preserves session cookies including `clal` token; provides `refreshSession` to exchange `clal` for fresh IP-bound session cookies (`_t`, `userId`).
-- **Cookie handling (`src/lib/games/maimai/cookies.ts`):** Custom Set-Cookie parser, cookie bag formatter, and cookie merger avoiding library bugs with comma-containing cookie values (e.g. `Expires`).
+- **OpenAPI Plugin (`src/plugins/openapi.ts`):** `@elysiajs/openapi` configured with Scalar provider at `/docs` and OpenAPI JSON at `/docs/json`. Tagged for Maimai and Chunithm endpoints.
+- **Shared SEGA Auth (`src/lib/shared/sega-auth.ts`):** Performs 3-step SEGA ID redirect dance parameterized by `SegaAuthConfig` (`siteId`, `redirectUrl`, `backUrl`, `allowedCookies`); preserves session cookies including `clal` token; provides `refreshSegaSession` to exchange `clal` for fresh IP-bound session cookies (`_t`, `userId`).
+- **Shared Cookie handling (`src/lib/shared/cookies.ts`):** Custom Set-Cookie parser, cookie bag formatter, and cookie merger avoiding library bugs with comma-containing cookie values (e.g. `Expires`).
+- **Shared HTTP client (`src/lib/shared/http.ts`):** Fetch wrapper (`followRedirects`) with redirect chasing, cookie jar preservation, custom headers (`User-Agent`), and auth error detection.
 - **Profile parser (`src/lib/games/maimai/parser/profile.ts`):** Scrapes player details (rating, title, stars, counts) and collection items (nameplate and frame) from HTML using Cheerio selectors.
 - **Score parser (`src/lib/games/maimai/parser/scores.ts`):** Scrapes score cards across all 5 difficulties (`basic`, `advanced`, `expert`, `master`, `remaster`).
 - **Name normalizer (`src/lib/games/maimai/parser/name.ts`):** Converts full-width Japanese characters to ASCII (NFKC), normalizes whitespace, and extracts URL basenames.
