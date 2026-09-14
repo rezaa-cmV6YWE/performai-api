@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
-import { cookieBag, findCookie, mergeCookies, parseCookies } from '@/lib/games/maimai/cookies';
+import { cookieBag, findCookie, mergeCookies, parseCookies } from '@/lib/shared/cookies';
 
 describe('parseCookies', () => {
   it('parses a multi-cookie Set-Cookie header array (getSetCookie format)', () => {

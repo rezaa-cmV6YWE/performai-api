@@ -12,7 +12,10 @@ export const openapiPlugin = new Elysia({ name: 'openapi' })
           version: '1.0.0',
           description: 'API for rhythm game data (maimai, chunithm, ongeki)',
         },
-        tags: [{ name: 'Maimai', description: 'Maimai DX Intl endpoints' }],
+        tags: [
+          { name: 'Maimai', description: 'Maimai DX Intl endpoints' },
+          { name: 'Chunithm', description: 'CHUNITHM Intl endpoints' },
+        ],
       },
     })
   )

@@ -1,12 +1,9 @@
-import { MAIMAI_URLS } from '@/lib/games/maimai/consts';
+import { CHUNITHM_URLS } from '@/lib/games/chunithm/consts';
 import { followRedirects } from '@/lib/shared/http';
 
-export type { FetchWithRedirectsOptions, RedirectResult } from '@/lib/shared/http';
-export { followRedirects } from '@/lib/shared/http';
+const REFERER = `${CHUNITHM_URLS.intl}/`;
 
-const REFERER = `${MAIMAI_URLS.intl}/home/`;
-
-export async function maimaiFetch(
+export async function chunithmFetch(
   url: string,
   cookie: string,
   init: RequestInit = {}
