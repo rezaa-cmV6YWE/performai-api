@@ -1,4 +1,4 @@
-import { AuthError, GameError } from '@/lib/errors';
+import { AuthError, FetchError, GameError } from '@/lib/errors';
 import { DEFAULT_HEADERS, MAX_REDIRECTS } from '@/lib/shared/consts';
 import { mergeCookies } from '@/lib/shared/cookies';
 
@@ -76,4 +76,30 @@ export async function followRedirects(
       currentInit = { ...currentInit, method: 'GET', body: undefined };
     }
   }
+}
+
+export type GameFetch = (url: string, cookie: string, init?: RequestInit) => Promise<Response>;
+
+export function createGameFetch(referer: string): GameFetch {
+  return async (url, cookie, init = {}) => {
+    const { response } = await followRedirects(url, cookie, {
+      ...init,
+      checkAuthRedirect: true,
+      headers: { Referer: referer, ...init.headers },
+    });
+    return response;
+  };
+}
+
+/**
+ * Throws AuthError if any response is 401/403, else FetchError (upstream status passthrough)
+ * for the first non-ok one.
+ */
+export function assertResponsesOk(game: string, responses: readonly Response[]): void {
+  if (responses.some((res) => res.status === 401 || res.status === 403)) {
+    const statuses = responses.map((res) => res.status).join(', ');
+    throw new AuthError(`invalid or expired session cookie (HTTP ${statuses})`);
+  }
+  const failed = responses.find((res) => !res.ok);
+  if (failed) throw new FetchError(`${game} returned ${failed.status}`, failed.status);
 }

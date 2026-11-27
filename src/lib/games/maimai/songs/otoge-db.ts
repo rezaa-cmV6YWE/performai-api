@@ -1,12 +1,12 @@
 import { FetchError } from '@/lib/errors';
 import {
-  DEFAULT_HEADERS,
   DIFFICULTY_MAP,
   MAIMAI_DEFAULT_VERSION,
   OTOGEDB_INTL_URL,
   VERSION_MAJOR_MAP,
 } from '@/lib/games/maimai/consts';
 import { basenameFromUrl, normalizeName } from '@/lib/games/maimai/parser/name';
+import { DEFAULT_HEADERS } from '@/lib/shared/consts';
 
 export interface OtogeDbChart {
   title: string;

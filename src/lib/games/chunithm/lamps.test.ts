@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 
-import { fetchChunithmDifficultyLamps } from '@/lib/games/chunithm';
 import type { chunithmFetch } from '@/lib/games/chunithm/http';
+import { fetchChunithmDifficultyLamps } from '@/lib/games/chunithm/lamps';
 
 const MOCK_EXPERT_HTML = `
 <div class="box01 w420">

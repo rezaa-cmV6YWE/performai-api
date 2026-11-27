@@ -2,7 +2,7 @@ import { load } from 'cheerio';
 
 import { ParseError } from '@/lib/errors';
 import { CHUNITHM_URLS, type ChunithmServer } from '@/lib/games/chunithm/consts';
-import type { ChunithmProfile } from '@/lib/games/chunithm/schemas';
+import type { ChunithmProfile } from '@/modules/chunithm/model';
 
 function resolveUrl(src: string | undefined | null, server: ChunithmServer): string | null {
   if (!src) return null;

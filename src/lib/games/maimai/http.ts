@@ -1,24 +1,4 @@
 import { MAIMAI_URLS } from '@/lib/games/maimai/consts';
-import { followRedirects } from '@/lib/shared/http';
+import { createGameFetch } from '@/lib/shared/http';
 
-export type { FetchWithRedirectsOptions, RedirectResult } from '@/lib/shared/http';
-export { followRedirects } from '@/lib/shared/http';
-
-const REFERER = `${MAIMAI_URLS.intl}/home/`;
-
-export async function maimaiFetch(
-  url: string,
-  cookie: string,
-  init: RequestInit = {}
-): Promise<Response> {
-  const result = await followRedirects(url, cookie, {
-    ...init,
-    checkAuthRedirect: true,
-    headers: {
-      Referer: REFERER,
-      ...init.headers,
-    },
-  });
-
-  return result.response;
-}
+export const maimaiFetch = createGameFetch(`${MAIMAI_URLS.intl}/home/`);

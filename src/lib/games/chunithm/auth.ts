@@ -1,6 +1,6 @@
 import { CHUNITHM_BACK_URL, CHUNITHM_URLS } from '@/lib/games/chunithm/consts';
 import type { SegaAuthConfig } from '@/lib/shared/sega-auth';
-import { loginSega, refreshSegaSession } from '@/lib/shared/sega-auth';
+import { ensureSegaSession, loginSega } from '@/lib/shared/sega-auth';
 
 const CHUNITHM_AUTH_CONFIG: SegaAuthConfig = {
   siteId: 'chuniex',
@@ -13,6 +13,6 @@ export function loginChunithmIntl(segaId: string, password: string): Promise<str
   return loginSega(CHUNITHM_AUTH_CONFIG, segaId, password);
 }
 
-export function refreshSession(clalCookie: string): Promise<string> {
-  return refreshSegaSession(CHUNITHM_AUTH_CONFIG, clalCookie);
+export function ensureChunithmSession(cookie: string): Promise<string> {
+  return ensureSegaSession(CHUNITHM_AUTH_CONFIG, cookie);
 }

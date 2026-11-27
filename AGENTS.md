@@ -22,10 +22,12 @@ Compact orientation for coding sessions on `performai-api`.
 | `bun check`        | `oxlint . && oxfmt --check .` — lint and format check.     |
 | `bun check:fix`    | `oxlint --fix . && oxfmt .` — auto-fix lint and format.    |
 | `bun test`         | Run unit tests with Bun test runner.                       |
+| `bun typecheck`    | `tsc --noEmit` — TypeScript type check.                    |
 
 ## Entrypoints
 
-- App entry: `src/index.ts` → Elysia app mounts maimai module at `/v1/:server/maimai`, chunithm module at `/v1/:server/chunithm`, redirects `GET /` to `/docs`, and serves OpenAPI spec and Scalar docs via `@elysiajs/openapi`. Runs on port 3000 locally (configurable via `PORT` env var).
+- App: `src/app.ts` exports the Elysia `app` (no `.listen`, safe to import in tests); it mounts maimai module at `/v1/:server/maimai`, chunithm module at `/v1/:server/chunithm`, redirects `GET /` to `/docs`, and serves OpenAPI spec and Scalar docs via `@elysiajs/openapi`.
+- Server entry: `src/index.ts` imports `app` and listens on port 3000 locally (configurable via `PORT` env var).
 - Maimai module: `src/modules/maimai/index.ts` (controller), `src/modules/maimai/service.ts` (service), `src/modules/maimai/model.ts` (validation schemas).
 - Chunithm module: `src/modules/chunithm/index.ts` (controller), `src/modules/chunithm/service.ts` (service), `src/modules/chunithm/model.ts` (validation schemas).
 
@@ -53,12 +55,13 @@ Compact orientation for coding sessions on `performai-api`.
 
 ## Architecture & Subsystems
 
-- **Elysia MVC Pattern**: Controller (Elysia instance = `src/modules/{game}/index.ts`), Service (`{Game}Service` object in `src/modules/{game}/service.ts`), Model (Zod schemas = `src/modules/{game}/model.ts`).
-- **Global Error Handler (`src/plugins/error-handler.ts`):** Catches `VALIDATION` errors (status 422), `GameError` instances (and subclasses `AuthError`, `FetchError`, `ParseError`), and general unhandled errors (status 500), returning structured `{ error: { code, message } }` JSON responses.
+- **Elysia MVC Pattern**: Controller (Elysia instance = `src/modules/{game}/index.ts`, a `guard` holding shared params/error responses, instance-level OpenAPI `tags`), Service (`abstract class {Game}Service` with static methods returning domain data in `src/modules/{game}/service.ts`), Model (Zod schemas + types + a `.model()` plugin registering reference models = `src/modules/{game}/model.ts`; shared `ErrorResponse`/`LoginBody`/`LoginResponse`/`errorBody` in `src/modules/common/model.ts`).
+- **Global Error Handler (`src/plugins/error-handler.ts`):** `GameError` instances (and subclasses `AuthError`, `FetchError`, `ParseError`) → their status; `VALIDATION` → 422; `NOT_FOUND` → 404; `PARSE` (malformed body) → 400; anything else is logged and returns 500 `INTERNAL_ERROR` with a generic message. All return `{ error: { code, message } }`.
 - **OpenAPI Plugin (`src/plugins/openapi.ts`):** `@elysiajs/openapi` configured with Scalar provider at `/docs` and OpenAPI JSON at `/docs/json`. Tagged for Maimai and Chunithm endpoints.
-- **Shared SEGA Auth (`src/lib/shared/sega-auth.ts`):** Performs 3-step SEGA ID redirect dance parameterized by `SegaAuthConfig` (`siteId`, `redirectUrl`, `backUrl`, `allowedCookies`); preserves session cookies including `clal` token; provides `refreshSegaSession` to exchange `clal` for fresh IP-bound session cookies (`_t`, `userId`).
+- **Shared SEGA Auth (`src/lib/shared/sega-auth.ts`):** Performs 3-step SEGA ID redirect dance parameterized by `SegaAuthConfig` (`siteId`, `redirectUrl`, `backUrl`, `allowedCookies`); preserves session cookies including `clal` token; provides `refreshSegaSession` to exchange `clal` for fresh IP-bound session cookies (`_t`, `userId`) and `ensureSegaSession` to do so only when the cookie has `clal` but no `_t` (wrapped per game as `ensureMaimaiSession` / `ensureChunithmSession`).
+- **Chunithm lamps (`src/lib/games/chunithm/lamps.ts`):** Fetches per-difficulty record pages to fill combo/chain lamps missing from the rating pages.
 - **Shared Cookie handling (`src/lib/shared/cookies.ts`):** Custom Set-Cookie parser, cookie bag formatter, and cookie merger avoiding library bugs with comma-containing cookie values (e.g. `Expires`).
-- **Shared HTTP client (`src/lib/shared/http.ts`):** Fetch wrapper (`followRedirects`) with redirect chasing, cookie jar preservation, custom headers (`User-Agent`), and auth error detection.
+- **Shared HTTP client (`src/lib/shared/http.ts`):** `followRedirects` (redirect chasing, cookie jar preservation, `User-Agent`, auth-redirect detection), `createGameFetch(referer)` factory for per-game fetchers, and `assertResponsesOk(game, responses)` (401/403 → `AuthError`, other non-ok → `FetchError` with upstream status).
 - **Chunithm Rating calculation (`src/lib/games/chunithm/rating/calculator.ts`):** Exact rating formulas mapping score and internal level to individual song rating, and aggregating Old 30 (Best 30) and New 20 (divided by 50) into the overall player rating.
 - **Chunithm OtogeDB Integration (`src/lib/games/chunithm/songs/otoge-db.ts`):** Fetches song metadata from OtogeDB (`music-ex-intl.json`) matching song `id` directly to Chunithm-Net's `idx`, resolving chart internal levels and jacket images.
 - **Chunithm Rating parser (`src/lib/games/chunithm/parser/rating.ts`):** Scrapes Best 30 / Old 30 and New 20 entries (`id`, `difficulty`, `score`, `title`) from Chunithm-net HTML.
@@ -69,7 +72,7 @@ Compact orientation for coding sessions on `performai-api`.
 - **Rating calculation (`src/lib/games/maimai/rating/calculator.ts`):** Accuracy factor table, AP bonus (+1 on version >= 25), Best 50 selection (15 new + 35 old songs).
 - **OtogeDB Integration (`src/lib/games/maimai/songs/otoge-db.ts`):** Fetches and matches chart metadata from OtogeDB (`music-ex-intl.json`), maps version codes to internal numbers, and detects current version based on release dates.
 - **Asset resolution (`src/lib/games/maimai/assets.ts`):** Resolves absolute URLs for jackets, FC/FS combo badges, and rating tier plates.
-- **HTTP client (`src/lib/games/maimai/http.ts`):** Fetch wrapper (`followRedirects`, `maimaiFetch`) with redirect chasing, cookie jar preservation, custom headers (`User-Agent`, `Referer`), and auth error detection.
+- **HTTP clients (`src/lib/games/{maimai,chunithm}/http.ts`):** `maimaiFetch` / `chunithmFetch` built with `createGameFetch` and the game's `Referer`.
 
 ## Editing guidance
 
