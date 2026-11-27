@@ -1,3 +1,9 @@
+## [1.0.1](https://github.com/rezaa-cmV6YWE/performai-api/compare/v1.0.0...v1.0.1) (2026-11-27)
+
+### Bug Fixes
+
+- **maimai:** correct rating version detection and factors ([d6474ef](https://github.com/rezaa-cmV6YWE/performai-api/commit/d6474ef745eaeb4746a9dccbe200ad0e0ecc6178))
+
 # 1.0.0 (2026-09-14)
 
 ### Bug Fixes
