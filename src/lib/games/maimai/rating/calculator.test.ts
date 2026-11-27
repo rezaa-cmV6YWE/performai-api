@@ -27,15 +27,21 @@ describe('getRatingFactor', () => {
     expect(getRatingFactor(70.0)).toBe(0.112);
     expect(getRatingFactor(60.0)).toBe(0.096);
     expect(getRatingFactor(50.0)).toBe(0.08);
-    expect(getRatingFactor(40.0)).toBe(0.05); // below 50
-    expect(getRatingFactor(0)).toBe(0.05);
+    expect(getRatingFactor(40.0)).toBe(0.064);
+    expect(getRatingFactor(10.0)).toBe(0.016);
+    expect(getRatingFactor(0)).toBe(0);
   });
 
-  it('uses the lower bracket at exact bracket boundaries (< not <=)', () => {
-    // 99.5 exactly hits that branch (>= 99.5)
-    expect(getRatingFactor(99.5)).toBe(0.211);
-    // 99.4999 falls into the >= 99.0 bucket
-    expect(getRatingFactor(99.4999)).toBe(0.208);
+  it('uses the border factors one step below each rank threshold', () => {
+    expect(getRatingFactor(1004999 / 10000)).toBe(0.222);
+    expect(getRatingFactor(999999 / 10000)).toBe(0.214);
+    expect(getRatingFactor(994999 / 10000)).toBe(0.208);
+    expect(getRatingFactor(989999 / 10000)).toBe(0.206);
+    expect(getRatingFactor(969999 / 10000)).toBe(0.176);
+    expect(getRatingFactor(799999 / 10000)).toBe(0.128);
+    // Values just below a border fall into the regular bracket.
+    expect(getRatingFactor(1004998 / 10000)).toBe(0.216);
+    expect(getRatingFactor(969998 / 10000)).toBe(0.168);
   });
 });
 

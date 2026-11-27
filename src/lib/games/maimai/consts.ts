@@ -76,6 +76,8 @@ export const MAIMAI_AP_BONUS_MIN_VERSION = 25; // CiRCLE (260)
 export const MAIMAI_TWO_VERSION_NEW_THRESHOLD = 25; // CiRCLE (260)
 export const MAIMAI_KIWAMI_MIN_VERSION = 26; // CiRCLE PLUS (265)
 export const MAIMAI_DEFAULT_VERSION = 26; // CiRCLE PLUS (265)
+/** Released INTL songs a version needs before it counts as launched (launches add 12+ at once). */
+export const MAIMAI_VERSION_LAUNCH_MIN_SONGS = 10;
 
 export const FC_ICON_FILES: Record<string, string | undefined> = {
   none: undefined,
