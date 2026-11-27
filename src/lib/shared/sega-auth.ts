@@ -25,6 +25,14 @@ function buildLoginPageUrl(config: SegaAuthConfig): string {
 
 const LOGIN_POST_URL = `${SEGA_AUTH_GATEWAY_URL}/login/sid?retention=1`;
 
+function filterCookies(cookie: string, allowed: Iterable<string>): string {
+  const allowedNames = new Set(allowed);
+  return Array.from(parseCookies(cookie).entries())
+    .filter(([k]) => allowedNames.has(k))
+    .map(([k, v]) => `${k}=${v}`)
+    .join('; ');
+}
+
 /**
  * Performs the 3-step SEGA Aime Gateway login dance:
  * 1. GET login page → capture pre-cookies
@@ -77,12 +85,7 @@ export async function loginSega(
   const initialCookie = mergeCookies(preCookies, loginRes.headers.getSetCookie());
   const final = await followRedirects(location, initialCookie);
 
-  const allowed = new Set(config.allowedCookies);
-  const finalMap = parseCookies(final.cookie);
-  return Array.from(finalMap.entries())
-    .filter(([k]) => allowed.has(k))
-    .map(([k, v]) => `${k}=${v}`)
-    .join('; ');
+  return filterCookies(final.cookie, config.allowedCookies);
 }
 
 /**
@@ -114,11 +117,18 @@ export async function refreshSegaSession(
 
   const final = await followRedirects(location, '');
 
-  const refreshAllowed = config.allowedCookies.filter((c) => c !== 'clal');
-  const allowed = new Set(refreshAllowed);
-  const finalMap = parseCookies(final.cookie);
-  return Array.from(finalMap.entries())
-    .filter(([k]) => allowed.has(k))
-    .map(([k, v]) => `${k}=${v}`)
-    .join('; ');
+  return filterCookies(
+    final.cookie,
+    config.allowedCookies.filter((c) => c !== 'clal')
+  );
+}
+
+/**
+ * Returns `cookie` unchanged when it already has a session (`_t`) or has no `clal` to refresh
+ * from; otherwise exchanges `clal` for fresh IP-bound session cookies.
+ */
+export async function ensureSegaSession(config: SegaAuthConfig, cookie: string): Promise<string> {
+  const cookies = parseCookies(cookie);
+  if (cookies.has('_t') || !cookies.has('clal')) return cookie;
+  return refreshSegaSession(config, cookie);
 }

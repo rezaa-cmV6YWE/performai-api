@@ -14,6 +14,7 @@
     "check": "oxlint . && oxfmt --check .",
     "check:fix": "oxlint --fix . && oxfmt .",
     "test": "bun test",
+    "typecheck": "tsc --noEmit",
     "prepare": "husky"
   },
   "dependencies": {

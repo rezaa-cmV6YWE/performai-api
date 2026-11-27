@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
-import { app } from '@/index';
+import { app } from '@/app';
 
 describe('API routes and documentation', () => {
   describe('GET /', () => {
@@ -160,6 +160,26 @@ describe('API routes and documentation', () => {
       expect(res.status).toBe(422);
       const body = (await res.json()) as { error: { code: string; message: string } };
       expect(body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('GET unknown route returns 404 NOT_FOUND', async () => {
+      const res = await app.handle(new Request('http://localhost/does-not-exist'));
+      expect(res.status).toBe(404);
+      const body = (await res.json()) as { error: { code: string; message: string } };
+      expect(body.error.code).toBe('NOT_FOUND');
+    });
+
+    it('POST /v1/intl/maimai/login returns 400 BAD_REQUEST on malformed JSON', async () => {
+      const res = await app.handle(
+        new Request('http://localhost/v1/intl/maimai/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: '{bad',
+        })
+      );
+      expect(res.status).toBe(400);
+      const body = (await res.json()) as { error: { code: string; message: string } };
+      expect(body.error.code).toBe('BAD_REQUEST');
     });
   });
 });

@@ -1,31 +1,25 @@
 import { Elysia } from 'elysia';
 
 import { GameError } from '@/lib/errors';
+import { errorBody } from '@/modules/common/model';
 
 export const errorHandler = new Elysia({ name: 'error-handler' }).onError(
   { as: 'global' },
-  ({ code, error, set }) => {
-    if (code === 'VALIDATION') {
-      set.status = 422;
-      return {
-        error: {
-          code: 'VALIDATION_ERROR',
-          message: error.message,
-        },
-      };
-    }
-
+  ({ code, error, status }) => {
     if (error instanceof GameError) {
-      set.status = error.statusCode;
-      return {
-        error: { code: error.code, message: error.message },
-      };
+      return status(error.statusCode, errorBody(error.code, error.message));
     }
 
-    const message = error instanceof Error ? error.message : 'internal error';
-    set.status = 500;
-    return {
-      error: { code: 'INTERNAL_ERROR', message },
-    };
+    switch (code) {
+      case 'VALIDATION':
+        return status(422, errorBody('VALIDATION_ERROR', error.message));
+      case 'NOT_FOUND':
+        return status(404, errorBody('NOT_FOUND', 'route not found'));
+      case 'PARSE':
+        return status(400, errorBody('BAD_REQUEST', 'malformed request body'));
+      default:
+        console.error(error);
+        return status(500, errorBody('INTERNAL_ERROR', 'internal error'));
+    }
   }
 );

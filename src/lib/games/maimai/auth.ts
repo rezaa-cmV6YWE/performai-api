@@ -1,6 +1,6 @@
 import { MAIMAI_BACK_URL, MAIMAI_URLS } from '@/lib/games/maimai/consts';
 import type { SegaAuthConfig } from '@/lib/shared/sega-auth';
-import { loginSega, refreshSegaSession } from '@/lib/shared/sega-auth';
+import { ensureSegaSession, loginSega } from '@/lib/shared/sega-auth';
 
 const MAIMAI_AUTH_CONFIG: SegaAuthConfig = {
   siteId: 'maimaidxex',
@@ -14,9 +14,10 @@ export function loginMaimaiIntl(segaId: string, password: string): Promise<strin
 }
 
 /**
- * Exchanges a long-lived 'clal' token for fresh, IP-bound session cookies ('_t', 'userId').
+ * Exchanges a long-lived 'clal' token for fresh, IP-bound session cookies ('_t', 'userId')
+ * when the cookie has no session yet.
  * This is crucial for Cloudflare Workers where the outbound IP changes per request.
  */
-export function refreshSession(clalCookie: string): Promise<string> {
-  return refreshSegaSession(MAIMAI_AUTH_CONFIG, clalCookie);
+export function ensureMaimaiSession(cookie: string): Promise<string> {
+  return ensureSegaSession(MAIMAI_AUTH_CONFIG, cookie);
 }

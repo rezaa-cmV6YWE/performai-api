@@ -100,26 +100,37 @@ describe('getImageKey', () => {
 // ---------------------------------------------------------------------------
 
 describe('detectCurrentVersion', () => {
-  it('picks the highest version among songs released on or before today', () => {
+  const batch = (version: string, date: string, count = 10) =>
+    Array.from({ length: count }, (_, i) => ({
+      title: `${version}-${i}`,
+      version,
+      date_intl_added: date,
+    }));
+
+  it('picks the highest launched version among songs released on or before today', () => {
     const rawSongs = [
-      { title: 'Song 1', version: '25000', date_intl_added: '20250101' },
-      { title: 'Song 2', version: '26000', date_intl_added: '20260101' },
-      { title: 'Future Song', version: '27000', date_intl_added: '20991231' }, // future, ignored
+      ...batch('25000', '20250101'),
+      ...batch('26000', '20260101'),
+      ...batch('27000', '20991231'), // future, ignored
     ];
     expect(detectCurrentVersion(rawSongs)).toBe(25); // 26000 → ID 25
   });
 
+  it('ignores a newer version with only a few early-released songs', () => {
+    const rawSongs = [
+      ...batch('26500', '20260723'),
+      ...batch('27004', '20261029', 1), // early collab song from the next version
+    ];
+    expect(detectCurrentVersion(rawSongs)).toBe(26); // 26500 → ID 26
+  });
+
   it('falls back to MAIMAI_DEFAULT_VERSION when all songs are in the future', () => {
-    const rawSongs = [{ title: 'Future', version: '27000', date_intl_added: '20991231' }];
     // MAIMAI_DEFAULT_VERSION is 26
-    expect(detectCurrentVersion(rawSongs)).toBe(26);
+    expect(detectCurrentVersion(batch('27000', '20991231'))).toBe(26);
   });
 
   it('ignores songs with date "000000"', () => {
-    const rawSongs = [
-      { title: 'Special', version: '25000', date_intl_added: '000000' },
-      { title: 'Past', version: '24000', date_intl_added: '20240101' },
-    ];
+    const rawSongs = [...batch('25000', '000000'), ...batch('24000', '20240101')];
     expect(detectCurrentVersion(rawSongs)).toBe(21); // 24000 → ID 21
   });
 

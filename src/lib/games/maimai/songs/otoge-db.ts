@@ -1,12 +1,13 @@
 import { FetchError } from '@/lib/errors';
 import {
-  DEFAULT_HEADERS,
   DIFFICULTY_MAP,
   MAIMAI_DEFAULT_VERSION,
+  MAIMAI_VERSION_LAUNCH_MIN_SONGS,
   OTOGEDB_INTL_URL,
   VERSION_MAJOR_MAP,
 } from '@/lib/games/maimai/consts';
 import { basenameFromUrl, normalizeName } from '@/lib/games/maimai/parser/name';
+import { DEFAULT_HEADERS } from '@/lib/shared/consts';
 
 export interface OtogeDbChart {
   title: string;
@@ -58,15 +59,25 @@ function getTodayYyyymmdd(): string {
   return `${year}${month}${day}`;
 }
 
+/**
+ * The current INTL version is the newest one that has launched there. A launch adds a batch of
+ * songs at once, while a newer version's songs can trickle in early (collabs, events), so a
+ * version only counts once at least MAIMAI_VERSION_LAUNCH_MIN_SONGS of its songs are released.
+ */
 export function detectCurrentVersion(rawSongs: OtogeDbRawSong[]): number {
   const today = getTodayYyyymmdd();
-  let maxVersion = 0;
+  const releasedCounts = new Map<number, number>();
 
   for (const song of rawSongs) {
     const added = song.date_intl_added;
     if (!added || added === '000000' || added > today) continue;
     const id = versionCodeToId(song.version ?? '');
-    if (id > maxVersion) maxVersion = id;
+    releasedCounts.set(id, (releasedCounts.get(id) ?? 0) + 1);
+  }
+
+  let maxVersion = 0;
+  for (const [id, count] of releasedCounts) {
+    if (count >= MAIMAI_VERSION_LAUNCH_MIN_SONGS && id > maxVersion) maxVersion = id;
   }
 
   return maxVersion > 0 ? maxVersion : MAIMAI_DEFAULT_VERSION;

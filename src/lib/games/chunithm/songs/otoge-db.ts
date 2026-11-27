@@ -1,6 +1,6 @@
 import { FetchError } from '@/lib/errors';
+import { getJacketUrl } from '@/lib/games/chunithm/assets';
 import {
-  CHUNITHM_URLS,
   type ChunithmServer,
   DIFF_KEY_MAP,
   DIFFICULTIES,
@@ -76,11 +76,10 @@ export async function fetchChunithmOtogeDb(
 
   const rawSongs = (await res.json()) as OtogeDbRawSong[];
   const byId = new Map<string, ChunithmSongMeta>();
-  const baseUrl = CHUNITHM_URLS[server];
 
   for (const raw of rawSongs) {
     const id = String(raw.id);
-    const imageUrl = raw.image ? `${baseUrl}/img/${raw.image}` : null;
+    const imageUrl = getJacketUrl(raw.image, server);
     const charts: Partial<Record<Difficulty, ChunithmChartMeta>> = {};
 
     for (const diff of DIFFICULTIES) {

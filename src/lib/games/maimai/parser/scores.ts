@@ -1,6 +1,5 @@
 import { load } from 'cheerio';
 
-import { AuthError, FetchError } from '@/lib/errors';
 import {
   DIFFICULTIES,
   type Difficulty,
@@ -9,8 +8,7 @@ import {
 } from '@/lib/games/maimai/consts';
 import { maimaiFetch } from '@/lib/games/maimai/http';
 import { basenameFromUrl, normalizeName } from '@/lib/games/maimai/parser/name';
-
-export type { Difficulty };
+import { assertResponsesOk } from '@/lib/shared/http';
 
 export interface ScoreData {
   songName: string;
@@ -167,13 +165,7 @@ export async function fetchScoreData(
   const url = `${MAIMAI_URLS.intl}/record/musicGenre/search/?genre=99&diff=${difficultyNumber}`;
   const res = await maimaiFetch(url, cookie);
 
-  if (res.status === 401 || res.status === 403) {
-    throw new AuthError(`session expired or invalid (HTTP ${res.status})`);
-  }
-
-  if (!res.ok) {
-    throw new FetchError(`maimai returned ${res.status}`, res.status);
-  }
+  assertResponsesOk('maimai', [res]);
 
   const html = await res.text();
   return parseScoreData(html, difficultyNumber);

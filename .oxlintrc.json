@@ -22,7 +22,8 @@
     ],
     "import/first": "warn",
     "import/newline-after-import": "warn",
-    "import/no-duplicates": "warn"
+    "import/no-duplicates": "warn",
+    "typescript/no-extraneous-class": "off"
   },
   "ignorePatterns": ["**/node_modules/**", "**/dist/**", "**/.agents/**"]
 }

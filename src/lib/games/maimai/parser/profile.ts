@@ -2,7 +2,7 @@ import { load } from 'cheerio';
 
 import { ParseError } from '@/lib/errors';
 import { MAIMAI_URLS, type MaimaiServer } from '@/lib/games/maimai/consts';
-import type { Circle, MaimaiProfile } from '@/lib/games/maimai/schemas';
+import type { Circle, MaimaiProfile } from '@/modules/maimai/model';
 
 function resolveUrl(src: string | undefined, server: MaimaiServer): string | null {
   if (!src) return null;

@@ -27,7 +27,7 @@ describe('sega-auth', () => {
   describe('loginSega', () => {
     it('successfully logs in and returns filtered cookies', async () => {
       let callIndex = 0;
-      globalThis.fetch = mock(async (input: RequestInfo | URL, init?: RequestInit) => {
+      globalThis.fetch = mock(async (input: string | URL | Request, init?: RequestInit) => {
         callIndex++;
         const url = typeof input === 'string' ? input : input.toString();
 
@@ -81,7 +81,7 @@ describe('sega-auth', () => {
     });
 
     it('throws AuthError when login POST does not return 302', async () => {
-      globalThis.fetch = mock(async (input: RequestInfo | URL) => {
+      globalThis.fetch = mock(async (input: string | URL | Request) => {
         const url = typeof input === 'string' ? input : input.toString();
         if (url.includes('/login?')) {
           return new Response('', { status: 200 });
@@ -93,7 +93,7 @@ describe('sega-auth', () => {
     });
 
     it('throws AuthError when redirected back to login or with alof failure', async () => {
-      globalThis.fetch = mock(async (input: RequestInfo | URL) => {
+      globalThis.fetch = mock(async (input: string | URL | Request) => {
         const url = typeof input === 'string' ? input : input.toString();
         if (url.includes('/login?')) {
           return new Response('', { status: 200 });
@@ -108,7 +108,7 @@ describe('sega-auth', () => {
     });
 
     it('throws GameError when redirected to unexpected origin', async () => {
-      globalThis.fetch = mock(async (input: RequestInfo | URL) => {
+      globalThis.fetch = mock(async (input: string | URL | Request) => {
         const url = typeof input === 'string' ? input : input.toString();
         if (url.includes('/login?')) {
           return new Response('', { status: 200 });
@@ -123,7 +123,7 @@ describe('sega-auth', () => {
     });
 
     it('throws GameError when clal cookie is missing from login response', async () => {
-      globalThis.fetch = mock(async (input: RequestInfo | URL) => {
+      globalThis.fetch = mock(async (input: string | URL | Request) => {
         const url = typeof input === 'string' ? input : input.toString();
         if (url.includes('/login?')) {
           return new Response('', { status: 200 });
@@ -145,7 +145,7 @@ describe('sega-auth', () => {
   describe('refreshSegaSession', () => {
     it('successfully refreshes session from clal cookie', async () => {
       let callIndex = 0;
-      globalThis.fetch = mock(async (input: RequestInfo | URL) => {
+      globalThis.fetch = mock(async (input: string | URL | Request) => {
         callIndex++;
         const url = typeof input === 'string' ? input : input.toString();
 
@@ -193,7 +193,7 @@ describe('sega-auth', () => {
   describe('game wrappers', () => {
     it('loginChunithmIntl sends site_id=chuniex', async () => {
       let requestedUrl = '';
-      globalThis.fetch = mock(async (input: RequestInfo | URL) => {
+      globalThis.fetch = mock(async (input: string | URL | Request) => {
         const url = typeof input === 'string' ? input : input.toString();
         if (url.includes('/login?')) {
           requestedUrl = url;
@@ -220,7 +220,7 @@ describe('sega-auth', () => {
 
     it('loginMaimaiIntl sends site_id=maimaidxex', async () => {
       let requestedUrl = '';
-      globalThis.fetch = mock(async (input: RequestInfo | URL) => {
+      globalThis.fetch = mock(async (input: string | URL | Request) => {
         const url = typeof input === 'string' ? input : input.toString();
         if (url.includes('/login?')) {
           requestedUrl = url;

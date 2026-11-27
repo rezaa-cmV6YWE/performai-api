@@ -1,7 +1,3 @@
-import { SEGA_AUTH_GATEWAY_URL } from '@/lib/shared/consts';
-
-export { DEFAULT_HEADERS, MAX_REDIRECTS, USER_AGENT } from '@/lib/shared/consts';
-
 export const MAIMAI_URLS = {
   intl: 'https://maimaidx-eng.com/maimai-mobile',
   jp: 'https://maimaidx.jp/maimai-mobile',
@@ -10,7 +6,6 @@ export const MAIMAI_URLS = {
 
 export type MaimaiServer = keyof typeof MAIMAI_URLS;
 
-export const MAIMAI_AUTH_GATEWAY_URL = SEGA_AUTH_GATEWAY_URL;
 export const MAIMAI_BACK_URL = 'https://maimai.sega.com/';
 
 export const OTOGEDB_INTL_URL =
@@ -81,6 +76,8 @@ export const MAIMAI_AP_BONUS_MIN_VERSION = 25; // CiRCLE (260)
 export const MAIMAI_TWO_VERSION_NEW_THRESHOLD = 25; // CiRCLE (260)
 export const MAIMAI_KIWAMI_MIN_VERSION = 26; // CiRCLE PLUS (265)
 export const MAIMAI_DEFAULT_VERSION = 26; // CiRCLE PLUS (265)
+/** Released INTL songs a version needs before it counts as launched (launches add 12+ at once). */
+export const MAIMAI_VERSION_LAUNCH_MIN_SONGS = 10;
 
 export const FC_ICON_FILES: Record<string, string | undefined> = {
   none: undefined,
